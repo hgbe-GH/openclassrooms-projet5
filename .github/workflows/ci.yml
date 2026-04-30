@@ -1,0 +1,86 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Tests and lint
+    runs-on: ubuntu-latest
+    environment: test
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore local model artifact
+        run: |
+          mkdir -p models
+          if [ -n "${{ secrets.MODEL_ARTIFACT_BASE64 }}" ]; then
+            echo "${{ secrets.MODEL_ARTIFACT_BASE64 }}" | base64 --decode > models/attrition_xgboost_pipeline.joblib
+          else
+            echo "MODEL_ARTIFACT_BASE64 secret is required for full prediction tests."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Run lint
+        run: uv run ruff check .
+
+  deploy-huggingface:
+    name: Deploy to Hugging Face Spaces
+    runs-on: ubuntu-latest
+    environment: production
+    needs: quality
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare model artifact
+        run: |
+          mkdir -p models
+          echo "${{ secrets.MODEL_ARTIFACT_BASE64 }}" | base64 --decode > models/attrition_xgboost_pipeline.joblib
+
+      - name: Push repository to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE" ]; then
+            echo "HF_TOKEN secret and HF_SPACE variable are required for deployment."
+            exit 1
+          fi
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git remote add huggingface "https://oauth2:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}"
+          git push --force huggingface HEAD:main

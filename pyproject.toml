@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "openclassrooms_projet5"
-version = "0.0.1"
+version = "0.1.0"
 description = "API de deploiement du modele attrition Projet 4 pour Futurisys."
 authors = [
   { name = "hgbe" },
@@ -51,4 +51,3 @@ extend-select = ["I"]  # Add import sorting
 [tool.ruff.lint.isort]
 known-first-party = ["openclassrooms_projet5"]
 force-sort-within-sections = true
-
