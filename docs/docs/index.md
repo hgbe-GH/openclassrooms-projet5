@@ -4,7 +4,12 @@
 
 API de deploiement du modele attrition Projet 4 pour Futurisys.
 
-## Commands
+## Commandes
 
-The Makefile contains the central entry points for common tasks related to this project.
+Utiliser directement `uv` pour les taches courantes :
 
+```bash
+uv sync
+uv run pytest
+uv run ruff check .
+```
