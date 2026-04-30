@@ -32,7 +32,8 @@ Actions exécute automatiquement les tests et le lint sur chaque push et pull re
 
 Secrets et variables attendus pour GitHub Actions :
 
-- `MODEL_ARTIFACT_BASE64` : contenu base64 du fichier `models/attrition_xgboost_pipeline.joblib`.
+- `MODEL_ARTIFACT_PASSPHRASE` : phrase secrete permettant de dechiffrer
+  `models/attrition_xgboost_pipeline.joblib.enc` pendant la CI.
 - `HF_TOKEN` : token Hugging Face avec droit d'écriture sur le Space.
 - `HF_SPACE` : variable GitHub contenant le chemin du Space Hugging Face, par exemple
   `username/space-name`.

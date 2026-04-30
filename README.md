@@ -53,6 +53,15 @@ Le fichier source vient de :
 /home/hgbe/openclassrooms/projet4/models/attrition_xgboost_pipeline.joblib
 ```
 
+Pour GitHub Actions, l'artefact est stocke sous forme chiffree dans :
+
+```text
+models/attrition_xgboost_pipeline.joblib.enc
+```
+
+Le secret GitHub `MODEL_ARTIFACT_PASSPHRASE` permet de le dechiffrer pendant les
+tests CI/CD.
+
 Les fichiers de donnees, les modeles serialises et les secrets locaux sont ignores
 par Git. Utiliser `.env.example` comme base pour creer un fichier `.env` local non
 versionne.
@@ -80,7 +89,8 @@ Le fichier `.github/workflows/ci.yml` configure GitHub Actions :
 
 - execution automatique sur `push` et `pull_request`;
 - installation de Python 3.12 et `uv`;
-- restauration du modele depuis le secret `MODEL_ARTIFACT_BASE64`;
+- restauration du modele depuis l'artefact chiffre et le secret
+  `MODEL_ARTIFACT_PASSPHRASE`;
 - lancement de `uv run pytest`;
 - lancement de `uv run ruff check .`;
 - deploiement Hugging Face Spaces sur un tag `v*`, avec `HF_TOKEN` et `HF_SPACE`.

@@ -12,6 +12,7 @@
 # Trained models and binary artifacts
 /models/*
 !/models/.gitkeep
+!/models/*.enc
 *.joblib
 *.pkl
 *.pickle

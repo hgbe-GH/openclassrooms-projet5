@@ -38,10 +38,13 @@ jobs:
       - name: Restore local model artifact
         run: |
           mkdir -p models
-          if [ -n "${{ secrets.MODEL_ARTIFACT_BASE64 }}" ]; then
-            echo "${{ secrets.MODEL_ARTIFACT_BASE64 }}" | base64 --decode > models/attrition_xgboost_pipeline.joblib
+          if [ -n "${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 \
+              -in models/attrition_xgboost_pipeline.joblib.enc \
+              -out models/attrition_xgboost_pipeline.joblib \
+              -pass pass:"${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}"
           else
-            echo "MODEL_ARTIFACT_BASE64 secret is required for full prediction tests."
+            echo "MODEL_ARTIFACT_PASSPHRASE secret is required for full prediction tests."
             exit 1
           fi
 
@@ -69,7 +72,10 @@ jobs:
       - name: Prepare model artifact
         run: |
           mkdir -p models
-          echo "${{ secrets.MODEL_ARTIFACT_BASE64 }}" | base64 --decode > models/attrition_xgboost_pipeline.joblib
+          openssl enc -d -aes-256-cbc -pbkdf2 \
+            -in models/attrition_xgboost_pipeline.joblib.enc \
+            -out models/attrition_xgboost_pipeline.joblib \
+            -pass pass:"${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}"
 
       - name: Push repository to Hugging Face Space
         env:
