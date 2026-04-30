@@ -18,18 +18,36 @@ uv run pytest
 uv run ruff check .
 ```
 
-## Source du modele
+Lancer l'API en local :
 
-L'artefact cible du Projet 4 est identifie ici, mais il n'est pas encore copie
-dans ce depot :
+```bash
+uv run uvicorn openclassrooms_projet5.api.main:app --reload
+```
+
+Endpoints disponibles :
+
+- `GET /health` : verifie que l'API repond et que le modele est chargeable.
+- `POST /predict` : retourne `probabilite_attrition`, `prediction_attrition` et `threshold`
+  pour un employe.
+- `GET /docs` : documentation Swagger/OpenAPI generee par FastAPI.
+
+## Modele local
+
+L'artefact cible du Projet 4 est copie localement pour les tests et l'API :
+
+```text
+models/attrition_xgboost_pipeline.joblib
+```
+
+Le fichier source vient de :
 
 ```text
 /home/hgbe/openclassrooms/projet4/models/attrition_xgboost_pipeline.joblib
 ```
 
-Les fichiers de donnees, les modeles serialises et les secrets locaux sont
-ignores par Git. Utiliser `.env.example` comme base pour creer un fichier `.env`
-local non versionne.
+Les fichiers de donnees, les modeles serialises et les secrets locaux sont ignores
+par Git. Utiliser `.env.example` comme base pour creer un fichier `.env` local non
+versionne.
 
 ## Project Organization
 

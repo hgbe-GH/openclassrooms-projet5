@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -17,6 +18,8 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
 MODELS_DIR = PROJ_ROOT / "models"
+_MODEL_PATH = Path(os.getenv("MODEL_PATH", "models/attrition_xgboost_pipeline.joblib"))
+MODEL_PATH = _MODEL_PATH if _MODEL_PATH.is_absolute() else PROJ_ROOT / _MODEL_PATH
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"

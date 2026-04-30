@@ -16,7 +16,10 @@ classifiers = [
     
 ]
 dependencies = [
+    "fastapi>=0.136.1",
+    "httpx>=0.28.1",
     "ipython",
+    "joblib>=1.5.3",
     "jupyterlab",
     "loguru",
     "matplotlib",
@@ -31,6 +34,8 @@ dependencies = [
     "scikit-learn",
     "tqdm",
     "typer",
+    "uvicorn>=0.46.0",
+    "xgboost>=3.2.0",
 ]
 requires-python = "~=3.12.0"
 
