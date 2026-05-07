@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>État du projet - Mentor - 7 mai 2026</title>
+  <style>
+    :root {
+      --bg: #f5f1e8;
+      --paper: #fffdf8;
+      --ink: #1f2933;
+      --muted: #52606d;
+      --line: #d9cfbf;
+      --accent: #a63d40;
+      --accent-soft: #f8e3d1;
+      --success: #1f7a4d;
+      --success-soft: #dff3e6;
+      --warning: #9a6700;
+      --warning-soft: #fff1c2;
+      --info: #245c8f;
+      --info-soft: #dcecff;
+      --shadow: 0 18px 50px rgba(55, 40, 24, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(166, 61, 64, 0.08), transparent 26%),
+        linear-gradient(180deg, #f8f3eb 0%, var(--bg) 100%);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(166, 61, 64, 0.96), rgba(84, 31, 32, 0.98));
+      color: #fffaf4;
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      color: rgba(255, 250, 244, 0.92);
+      font-size: 1.02rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    section {
+      margin-top: 28px;
+      background: var(--paper);
+      border: 1px solid rgba(217, 207, 191, 0.85);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.5rem;
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 1.14rem;
+      line-height: 1.3;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    ul {
+      margin: 10px 0 0 20px;
+      padding: 0;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.94em;
+      background: #f3ede2;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .summary-grid,
+    .status-grid,
+    .work-grid,
+    .why-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .status-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .work-grid,
+    .why-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .card,
+    .status-card,
+    .work-card,
+    .why-card {
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      padding: 20px;
+      background: #fffaf2;
+    }
+
+    .card strong,
+    .status-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .status-card.done {
+      background: linear-gradient(180deg, #f7fff9 0%, var(--success-soft) 100%);
+    }
+
+    .status-card.progress {
+      background: linear-gradient(180deg, #fffdf1 0%, var(--warning-soft) 100%);
+    }
+
+    .status-card.next {
+      background: linear-gradient(180deg, #f7fbff 0%, var(--info-soft) 100%);
+    }
+
+    .work-card dt {
+      font-weight: 700;
+      margin-top: 14px;
+      color: var(--accent);
+    }
+
+    .work-card dt:first-child {
+      margin-top: 0;
+    }
+
+    .work-card dd {
+      margin: 4px 0 0;
+      color: var(--ink);
+    }
+
+    .evidence {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .timeline {
+      margin-top: 16px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .timeline li {
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .timeline li:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border-radius: 0 16px 16px 0;
+      margin-top: 16px;
+    }
+
+    .facts {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 18px;
+    }
+
+    .fact-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: #fffefb;
+    }
+
+    .fact-box strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .mentor-script {
+      white-space: pre-line;
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffdf9 0%, #f9f1e4 100%);
+      font-size: 1rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      section {
+        box-shadow: none;
+        border-color: #d7d7d7;
+      }
+
+      section,
+      .hero {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <h1>État du projet au 7 mai 2026</h1>
+      <p>
+        Ce document synthétise l’avancement global du projet 5 OpenClassrooms, avec un focus sur le
+        sprint récent consacré à l’API FastAPI, à la traçabilité PostgreSQL, aux migrations, à la CI/CD
+        et aux tests. L’objectif est de montrer ce qui est réellement en place, pourquoi ces choix ont été
+        faits, et ce qu’il reste à consolider.
+      </p>
+      <div class="hero-meta">
+        <span class="pill">Projet : API d’attrition Futurisys</span>
+        <span class="pill">Date : 7 mai 2026</span>
+        <span class="pill">Format : export HTML autonome</span>
+        <span class="pill">Public : mentor OpenClassrooms</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>Résumé exécutif</h2>
+      <div class="summary-grid">
+        <article class="card">
+          <strong>Objectif du projet</strong>
+          <p>
+            Transformer le modèle du projet 4 en une API exploitable, testée, documentée et intégrable
+            dans une chaîne CI/CD.
+          </p>
+        </article>
+        <article class="card">
+          <strong>Où j’en suis</strong>
+          <p>
+            Le socle API existe, la validation des entrées est en place, la journalisation PostgreSQL
+            optionnelle est implémentée et la CI sait maintenant tester aussi la partie base de données.
+          </p>
+        </article>
+        <article class="card">
+          <strong>État de validation</strong>
+          <p>
+            Validation locale du jour : <code>uv run pytest</code> sans base active = <strong>8 tests passés,
+            3 ignorés</strong>. Validation rejouée avec PostgreSQL actif et migrations appliquées =
+            <strong>11 tests passés</strong>.
+          </p>
+        </article>
+        <article class="card">
+          <strong>Point de vigilance</strong>
+          <p>
+            Les changements récents sont présents dans l’arbre de travail mais pas encore versionnés dans
+            un commit dédié. Il reste aussi le suivi administratif de la soutenance du projet 4.
+          </p>
+        </article>
+      </div>
+
+      <div class="facts">
+        <div class="fact-box">
+          <strong>Historique court du dépôt</strong>
+          <p class="small">
+            <code>1fa2609</code> initialisation du projet<br>
+            <code>e856229</code> ajout de l’API FastAPI<br>
+            <code>cbb487f</code> ajout de la CI/CD et des standards<br>
+            <code>9b6ea2d</code> restauration du modèle chiffré en CI
+          </p>
+        </div>
+        <div class="fact-box">
+          <strong>État Git courant</strong>
+          <p class="small">
+            Modifications locales sur la configuration, l’API, la documentation et les tests.<br>
+            Nouveaux éléments non suivis : <code>alembic/</code>, <code>compose.yaml</code>,
+            <code>openclassrooms_projet5/db/</code>, <code>tests/test_db_integration.py</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>État actuel du projet</h2>
+      <div class="status-grid">
+        <article class="status-card done">
+          <strong>Déjà en place</strong>
+          <ul>
+            <li>Structure de dépôt propre avec documentation de démarrage.</li>
+            <li>API FastAPI exposant <code>/health</code> et <code>/predict</code>.</li>
+            <li>Validation des payloads avec Pydantic.</li>
+            <li>Modèle local prêt à être chargé pour l’inférence.</li>
+            <li>Workflow CI existant avec tests et lint.</li>
+          </ul>
+        </article>
+        <article class="status-card progress">
+          <strong>Implémenté mais à finaliser ou valider</strong>
+          <ul>
+            <li>Journalisation PostgreSQL optionnelle des prédictions réussies.</li>
+            <li>Migrations Alembic pour créer la table <code>prediction_logs</code>.</li>
+            <li>Tests d’intégration DB en place et validés avec une base active.</li>
+            <li>Configuration locale PostgreSQL via <code>.env.example</code> et <code>compose.yaml</code>.</li>
+            <li>Documentation projet enrichie avec les nouveaux flux.</li>
+          </ul>
+        </article>
+        <article class="status-card next">
+          <strong>Prochaine étape</strong>
+          <ul>
+            <li>Versionner proprement ce sprint dans Git.</li>
+            <li>Continuer la consolidation locale et la démonstration complète du parcours API + DB.</li>
+            <li>Préparer une démonstration mentor simple : <code>/health</code>, <code>/predict</code>, trace en base.</li>
+            <li>Planifier la soutenance du projet 4 si elle n’est pas déjà fixée.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Travaux réalisés</h2>
+      <div class="work-grid">
+        <article class="work-card">
+          <h3>Socle projet et environnement</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Le dépôt a été structuré autour d’un projet Python propre, avec dépendances gérées par <code>uv</code>, documentation de démarrage, conventions Git et séparation claire des répertoires.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>Un socle propre évite de perdre du temps plus tard sur l’organisation et rend le projet compréhensible dès le début pour le mentor, la CI et un futur évaluateur.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Le projet est démarrable localement, lisible, et prêt à accueillir les briques API, base de données, tests et déploiement.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>README.md</code> · <code>pyproject.toml</code> · <code>docs/standards.md</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>API FastAPI : <code>/health</code>, <code>/predict</code>, schémas Pydantic</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>L’API expose un endpoint de supervision <code>/health</code> et un endpoint métier <code>/predict</code>. Les entrées et sorties sont typées et validées avec des schémas Pydantic.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>FastAPI permet d’exposer le modèle de manière testable et documentée. <code>/health</code> sert au diagnostic rapide, <code>/predict</code> matérialise le service métier, et Pydantic protège l’API contre les payloads invalides.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>L’API répond localement, charge le modèle, retourne une probabilité, une décision binaire et un seuil, et remonte aussi l’état de la base dans <code>/health</code>.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>openclassrooms_projet5/api/main.py</code> · <code>openclassrooms_projet5/api/schemas.py</code> · <code>README.md</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>Persistance PostgreSQL optionnelle</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Une couche de persistance synchrone a été ajoutée avec SQLAlchemy pour enregistrer chaque prédiction réussie dans PostgreSQL quand <code>DATABASE_URL</code> est renseignée.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>La base apporte de la traçabilité sans transformer l’API en dépendance fragile : la prédiction continue à répondre même si la journalisation échoue, ce qui est un choix pragmatique pour une première version.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>La journalisation est implémentée et validée avec une base active. Sans base, le comportement reste fonctionnel et l’API signale simplement que la journalisation est désactivée.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>openclassrooms_projet5/api/main.py</code> · <code>openclassrooms_projet5/db/models.py</code> · <code>openclassrooms_projet5/db/service.py</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>Migrations Alembic</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Un environnement Alembic a été ajouté avec une première migration créant la table <code>prediction_logs</code> contenant l’UUID, la date, le payload JSONB et les sorties du modèle.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>SQLAlchemy sert à manipuler la persistance dans le code, et Alembic sert à versionner proprement le schéma de base sans dépendre de manipulations manuelles.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Le schéma est défini et migrable. La migration a été rejouée localement avec succès lors de la validation PostgreSQL du 7 mai 2026.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>alembic.ini</code> · <code>alembic/env.py</code> · <code>alembic/versions/20260507_01_create_prediction_logs.py</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>Configuration locale : <code>.env.example</code> et <code>compose.yaml</code></h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Les variables d’environnement PostgreSQL ont été documentées et un service PostgreSQL local a été préparé avec Docker Compose.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>La configuration explicite rend le projet reproductible. <code>.env.example</code> donne une base claire, et <code>compose.yaml</code> évite une installation locale manuelle de PostgreSQL.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Le projet peut être lancé avec une base locale dédiée. La validation du jour a été rejouée sur un port alternatif car le port <code>5432</code> était déjà occupé sur la machine.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>.env.example</code> · <code>compose.yaml</code> · <code>README.md</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>CI/CD GitHub Actions</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Le workflow de qualité a été étendu pour démarrer PostgreSQL, restaurer le modèle chiffré, appliquer les migrations Alembic, puis lancer les tests et le lint.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>La CI garantit que le projet ne dépend pas seulement de mon poste local. Elle automatise le contrôle qualité et sécurise la reproductibilité du service et de sa base.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Le pipeline est prêt à tester l’API seule et l’intégration DB. Le déploiement Hugging Face reste séparé et conditionné aux tags de version.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>.github/workflows/ci.yml</code> · <code>README.md</code> · <code>models/attrition_xgboost_pipeline.joblib.enc</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>Tests API et tests d’intégration DB</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Les tests couvrent désormais le chargement du modèle, les statuts de <code>/health</code>, le fonctionnement de <code>/predict</code>, les erreurs de validation et la persistance réelle dans PostgreSQL.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>Les tests d’intégration montrent que la trace en base n’est pas seulement prévue dans le code : elle fonctionne réellement avec la migration et un PostgreSQL actif, ce qui réduit le risque de régression.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Résultat courant sans base active : <strong>8 tests passés, 3 ignorés</strong>. Résultat rejoué avec PostgreSQL actif et migration appliquée : <strong>11 tests passés</strong>.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>tests/test_api.py</code> · <code>tests/test_db_integration.py</code> · <code>.github/workflows/ci.yml</code></dd>
+          </dl>
+        </article>
+
+        <article class="work-card">
+          <h3>Documentation et standards</h3>
+          <dl>
+            <dt>Ce qui a été fait</dt>
+            <dd>Le <code>README</code> et les standards du projet ont été enrichis pour documenter la base optionnelle, les commandes locales, la CI et les conventions à suivre.</dd>
+            <dt>Pourquoi c’est utile</dt>
+            <dd>La documentation sert de contrat de travail. Elle aide à relancer le projet rapidement, à présenter l’avancement et à limiter les ambiguïtés pendant la soutenance ou le mentorat.</dd>
+            <dt>Où on en est maintenant</dt>
+            <dd>Le projet est mieux raconté, mieux transmissible et plus simple à démontrer sans dépendre d’une explication orale improvisée.</dd>
+            <dt>Preuve dans le dépôt</dt>
+            <dd class="evidence"><code>README.md</code> · <code>docs/standards.md</code> · <code>docs/mkdocs.yml</code></dd>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Pourquoi ces choix</h2>
+      <div class="why-grid">
+        <article class="why-card">
+          <h3>FastAPI</h3>
+          <p>Le but du projet n’est pas seulement d’avoir un modèle, mais un service exploitable. FastAPI donne une API claire, testable, documentée automatiquement et adaptée à une démonstration mentor ou soutenance.</p>
+        </article>
+        <article class="why-card">
+          <h3><code>/health</code> et <code>/predict</code></h3>
+          <p><code>/predict</code> matérialise la valeur métier. <code>/health</code> sert à distinguer rapidement un problème de modèle, de configuration ou de base de données, ce qui est important pour l’exploitation.</p>
+        </article>
+        <article class="why-card">
+          <h3>Pydantic</h3>
+          <p>Valider les entrées et les sorties évite d’envoyer au modèle des données incohérentes et clarifie le contrat JSON de l’API.</p>
+        </article>
+        <article class="why-card">
+          <h3>PostgreSQL optionnel</h3>
+          <p>La traçabilité est utile pour auditer les prédictions, mais je n’ai pas voulu rendre l’API inutilisable si la base manque. Le mode optionnel est un bon compromis pour une v1.</p>
+        </article>
+        <article class="why-card">
+          <h3>SQLAlchemy + Alembic</h3>
+          <p>SQLAlchemy apporte une couche standard côté application. Alembic versionne le schéma et rend l’évolution de la base traçable et reproductible.</p>
+        </article>
+        <article class="why-card">
+          <h3><code>compose.yaml</code> et <code>.env.example</code></h3>
+          <p>Ces fichiers rendent le projet relançable sur une machine propre, avec une configuration explicite et un PostgreSQL local rapide à démarrer.</p>
+        </article>
+        <article class="why-card">
+          <h3>CI GitHub Actions</h3>
+          <p>L’objectif est d’éviter une qualité “ça marche chez moi”. Le pipeline vérifie automatiquement les tests, la qualité de code et le scénario avec base de données.</p>
+        </article>
+        <article class="why-card">
+          <h3>Artefact modèle chiffré</h3>
+          <p>Le modèle du projet 4 doit être disponible pour la CI sans exposer un binaire sensible en clair dans le dépôt. Le chiffrement garde un niveau de sécurité tout en permettant la reproductibilité.</p>
+        </article>
+        <article class="why-card">
+          <h3>Tests d’intégration</h3>
+          <p>Ils démontrent que la journalisation fonctionne réellement avec la base et la migration, et pas seulement sur le papier ou via des mocks.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Points ouverts et prochaines étapes</h2>
+      <ul>
+        <li>Versionner ce sprint dans Git avec un commit propre et cohérent avant d’ouvrir ou mettre à jour une branche de travail.</li>
+        <li>Poursuivre la consolidation de la démonstration locale complète : lancement PostgreSQL, migration, appel <code>/health</code>, appel <code>/predict</code>, vérification de la trace en base.</li>
+        <li>Documenter éventuellement un mini scénario de démo pas à pas pour la prochaine session mentor.</li>
+        <li>Programmer la soutenance du projet 4 si ce n’est pas déjà fait, car c’est un point de parcours bloquant identifié hors code.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Lecture factuelle de l’état actuel :</strong>
+        le projet n’est plus au stade “simple démarrage”. Il dispose désormais d’un socle API, d’une traçabilité PostgreSQL optionnelle, d’une migration versionnée, d’une CI enrichie et de tests d’intégration valides. La prochaine étape consiste surtout à stabiliser, versionner et présenter proprement.
+      </div>
+    </section>
+
+    <section>
+      <h2>Texte à lire au mentor</h2>
+      <p class="small">
+        Script de présentation à la première personne, prévu pour une lecture d’environ 3 à 5 minutes.
+      </p>
+      <div class="mentor-script">Depuis la dernière session, j’ai structuré le projet pour qu’il ne soit plus seulement une idée d’API autour du modèle du projet 4, mais un vrai socle technique présentable et testable.
+
+L’objectif du projet reste de transformer le modèle d’attrition en service exploitable. Pour ça, j’ai conservé une architecture simple mais propre, avec FastAPI pour exposer le modèle, Pydantic pour valider les entrées et sorties, et une documentation de démarrage pour pouvoir relancer le projet rapidement.
+
+Concrètement, j’ai une API qui expose deux routes principales. La première est <code>/health</code>, qui me permet de vérifier que l’application répond, que le modèle est bien chargeable, et maintenant aussi que la base de données est disponible ou non. La seconde est <code>/predict</code>, qui prend les données d’un employé, exécute l’inférence et retourne la probabilité d’attrition, la prédiction binaire et le seuil utilisé.
+
+J’ai aussi ajouté une brique PostgreSQL optionnelle. Le but n’était pas de rendre la base obligatoire tout de suite, mais d’apporter de la traçabilité. Maintenant, quand la variable <code>DATABASE_URL</code> est configurée, chaque prédiction réussie peut être journalisée en base. J’ai volontairement gardé un comportement best effort : si la base n’est pas disponible, l’API continue à répondre. Pour moi, c’est un choix pragmatique pour une première version, parce que je privilégie d’abord la continuité du service, tout en préparant la traçabilité.
+
+Pour rendre cette partie base de données propre, j’ai ajouté SQLAlchemy côté application et Alembic pour les migrations. J’ai créé une première migration qui génère la table <code>prediction_logs</code> avec un identifiant UUID, la date, le payload de requête et les sorties du modèle. L’intérêt, c’est que le schéma est maintenant versionné et reproductible, au lieu de dépendre d’une création manuelle.
+
+J’ai également préparé la configuration locale pour éviter un projet qui ne tourne que sur mon poste dans des conditions particulières. J’ai mis à jour <code>.env.example</code> pour expliciter les variables nécessaires et ajouté un <code>compose.yaml</code> pour lancer PostgreSQL facilement en local.
+
+Sur la qualité, j’ai renforcé les tests et la CI. Les tests ne couvrent plus seulement l’API de base, mais aussi les états de santé, les erreurs de validation et la persistance en base. Aujourd’hui, dans l’état courant sans base active, la suite donne 8 tests passés et 3 ignorés, ce qui est normal puisque les tests d’intégration DB attendent une base. J’ai aussi rejoué la validation complète avec PostgreSQL actif et migration appliquée, et dans ce cas j’obtiens 11 tests passés. C’est important pour moi parce que ça prouve que la partie base n’est pas seulement codée : elle fonctionne réellement.
+
+En parallèle, j’ai mis à jour la CI GitHub Actions pour qu’elle démarre un service PostgreSQL, restaure le modèle chiffré, applique les migrations et exécute les tests et le lint. Donc on est passé d’un projet simplement lançable à un projet déjà plus industrialisé.
+
+Si je résume honnêtement où j’en suis, j’ai maintenant un socle technique solide : API, validation, traçabilité optionnelle, migration, tests et CI. Ce qu’il me reste à faire, c’est surtout stabiliser et versionner proprement ce sprint, préparer une démonstration fluide du parcours complet, et continuer l’alignement avec les attentes de la soutenance. J’ai aussi le point administratif de la soutenance du projet 4 à sécuriser si ce n’est pas déjà fait.
+
+Donc aujourd’hui, je considère que le projet a dépassé le stade du démarrage. J’ai une base sérieuse, démontrable, et je peux maintenant avancer sur la consolidation plutôt que sur la simple mise en place.</div>
+    </section>
+  </main>
+</body>
+</html>

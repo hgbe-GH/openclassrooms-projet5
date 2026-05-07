@@ -26,6 +26,15 @@ uv run pytest
 uv run ruff check .
 ```
 
+Demarrage local avec PostgreSQL optionnel :
+
+```bash
+cp .env.example .env
+docker compose up -d postgres
+uv run alembic upgrade head
+uv run pytest
+```
+
 Lancer l'API en local :
 
 ```bash
@@ -34,9 +43,11 @@ uv run uvicorn openclassrooms_projet5.api.main:app --reload
 
 Endpoints disponibles :
 
-- `GET /health` : verifie que l'API repond et que le modele est chargeable.
+- `GET /health` : verifie que l'API repond, que le modele est chargeable et expose l'etat
+  de la journalisation PostgreSQL.
 - `POST /predict` : retourne `probabilite_attrition`, `prediction_attrition` et `threshold`
-  pour un employe.
+  pour un employe. Si `DATABASE_URL` est configuree, chaque prediction reussie est
+  journalisee dans PostgreSQL.
 - `GET /docs` : documentation Swagger/OpenAPI generee par FastAPI.
 
 ## Modele local
@@ -66,6 +77,30 @@ Les fichiers de donnees, les modeles serialises et les secrets locaux sont ignor
 par Git. Utiliser `.env.example` comme base pour creer un fichier `.env` local non
 versionne.
 
+## PostgreSQL et migrations
+
+La journalisation des predictions est optionnelle. Sans `DATABASE_URL`, l'API reste
+disponible et `/predict` continue a repondre sans persistance.
+
+Pour activer PostgreSQL en local :
+
+```bash
+docker compose up -d postgres
+uv run alembic upgrade head
+```
+
+Variables d'environnement attendues :
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_PORT`
+- `DATABASE_URL`
+- `DB_ECHO` (optionnel)
+
+La premiere migration cree la table `prediction_logs` avec l'identifiant UUID, le
+payload JSONB de la requete et les sorties du modele.
+
 ## Git et versionnement
 
 Workflow retenu :
@@ -89,8 +124,10 @@ Le fichier `.github/workflows/ci.yml` configure GitHub Actions :
 
 - execution automatique sur `push` et `pull_request`;
 - installation de Python 3.12 et `uv`;
+- demarrage d'un service PostgreSQL pour les tests d'integration;
 - restauration du modele depuis l'artefact chiffre et le secret
   `MODEL_ARTIFACT_PASSPHRASE`;
+- application des migrations Alembic avant les tests;
 - lancement de `uv run pytest`;
 - lancement de `uv run ruff check .`;
 - deploiement Hugging Face Spaces sur un tag `v*`, avec `HF_TOKEN` et `HF_SPACE`.

@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+import openclassrooms_projet5.api.main as app_main
 from openclassrooms_projet5.api.main import app
 from openclassrooms_projet5.modeling.predict import get_predictor
 
@@ -45,14 +46,60 @@ def test_model_loads():
     assert len(predictor.feature_columns) == 30
 
 
-def test_health_returns_model_status():
+def test_health_returns_model_status_when_database_disabled(monkeypatch):
+    monkeypatch.setattr(app_main, "get_predictor", lambda: object())
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json()["model_loaded"] is True
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["model_loaded"] is True
+    assert body["database_logging_enabled"] is False
+    assert body["database_connected"] is False
+    assert body["detail"] is None
 
 
-def test_predict_returns_attrition_prediction():
+def test_health_returns_model_status_when_database_available(monkeypatch):
+    monkeypatch.setattr(app_main, "get_predictor", lambda: object())
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
+    monkeypatch.setattr(app_main, "check_database_connection", lambda: (True, None))
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["model_loaded"] is True
+    assert body["database_logging_enabled"] is True
+    assert body["database_connected"] is True
+    assert body["detail"] is None
+
+
+def test_health_returns_degraded_status_when_database_unavailable(monkeypatch):
+    monkeypatch.setattr(app_main, "get_predictor", lambda: object())
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
+    monkeypatch.setattr(
+        app_main,
+        "check_database_connection",
+        lambda: (False, "database unavailable"),
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "degraded"
+    assert body["model_loaded"] is True
+    assert body["database_logging_enabled"] is True
+    assert body["database_connected"] is False
+    assert "database unavailable" in body["detail"]
+
+
+def test_predict_returns_attrition_prediction(monkeypatch):
+    monkeypatch.setattr(app_main, "log_prediction", lambda payload, prediction: False)
+
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
@@ -62,10 +109,33 @@ def test_predict_returns_attrition_prediction():
     assert 0 <= body["threshold"] <= 1
 
 
-def test_predict_rejects_missing_required_field():
+def test_predict_returns_attrition_prediction_when_logging_fails(monkeypatch):
+    def fake_log_prediction(payload, prediction):
+        raise RuntimeError("database unavailable")
+
+    monkeypatch.setattr(app_main, "log_prediction", fake_log_prediction)
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert 0 <= body["probabilite_attrition"] <= 1
+    assert body["prediction_attrition"] in {0, 1}
+    assert 0 <= body["threshold"] <= 1
+
+
+def test_predict_rejects_missing_required_field_without_logging(monkeypatch):
+    calls = {"count": 0}
+
+    def fake_log_prediction(payload, prediction):
+        calls["count"] += 1
+        return True
+
+    monkeypatch.setattr(app_main, "log_prediction", fake_log_prediction)
     payload = VALID_PAYLOAD.copy()
     payload.pop("age")
 
     response = client.post("/predict", json=payload)
 
     assert response.status_code == 422
+    assert calls["count"] == 0

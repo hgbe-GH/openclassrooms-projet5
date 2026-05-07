@@ -76,4 +76,6 @@ class HealthResponse(BaseModel):
     status: str
     model_loaded: bool
     model_path: str
+    database_connected: bool
+    database_logging_enabled: bool
     detail: str | None = None

@@ -16,6 +16,7 @@ classifiers = [
     
 ]
 dependencies = [
+    "alembic>=1.16.5",
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
     "ipython",
@@ -28,10 +29,12 @@ dependencies = [
     "numpy",
     "pandas",
     "pip",
+    "psycopg[binary]>=3.2.12",
     "pytest",
     "python-dotenv",
     "ruff",
     "scikit-learn",
+    "sqlalchemy>=2.0.44",
     "tqdm",
     "typer",
     "uvicorn>=0.46.0",

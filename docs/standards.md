@@ -17,6 +17,8 @@ Avant toute fusion dans `develop` ou `main`, exécuter :
 
 ```bash
 uv sync
+docker compose up -d postgres
+uv run alembic upgrade head
 uv run pytest
 uv run ruff check .
 ```
@@ -29,6 +31,15 @@ Actions exécute automatiquement les tests et le lint sur chaque push et pull re
 - `dev` : environnement local avec `.env`, non versionné.
 - `test` : environnement GitHub Actions qui exécute tests et lint.
 - `production` : déploiement Hugging Face Spaces déclenché par un tag `v*`.
+
+Variables locales attendues pour la journalisation PostgreSQL :
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_PORT`
+- `DATABASE_URL`
+- `DB_ECHO` (optionnel)
 
 Secrets et variables attendus pour GitHub Actions :
 
@@ -43,5 +54,7 @@ Secrets et variables attendus pour GitHub Actions :
 - Les modèles sérialisés et données réelles ne sont pas versionnés dans Git.
 - Les artefacts locaux sont placés dans `models/`.
 - Les entrées API sont validées avec Pydantic avant prédiction.
+- Les prédictions réussies peuvent être journalisées dans PostgreSQL si `DATABASE_URL`
+  est configurée.
 - Les tests doivent couvrir au minimum le chargement du modèle, `/health`, `/predict`
-  et les erreurs de validation.
+  les erreurs de validation et la persistance PostgreSQL quand elle est activée.
