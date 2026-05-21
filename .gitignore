@@ -13,6 +13,7 @@
 /models/*
 !/models/.gitkeep
 !/models/*.enc
+!/models/attrition_xgboost_pipeline.joblib
 *.joblib
 *.pkl
 *.pickle
