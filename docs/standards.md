@@ -19,6 +19,7 @@ Avant toute fusion dans `develop` ou `main`, exécuter :
 uv sync
 docker compose up -d postgres
 uv run python scripts/create_db.py
+uv run python scripts/seed_prediction_logs.py --truncate
 uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
 uv run ruff check .
 ```
@@ -50,6 +51,8 @@ Secrets et variables attendus pour GitHub Actions :
 - `HF_TOKEN` : token Hugging Face avec droit d'écriture sur le Space.
 - `HF_SPACE` : variable GitHub contenant le chemin du Space Hugging Face, par exemple
   `username/space-name`.
+- `HF_SPACE_URL` : URL runtime publique du Space, par exemple
+  `https://username-space-name.hf.space`.
 - `API_KEY` : cle API pour proteger `POST /predict` dans les environnements cibles.
 
 ## Standards ML

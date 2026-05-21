@@ -7,6 +7,7 @@ from sqlalchemy import text
 from openclassrooms_projet5.api.main import app
 from openclassrooms_projet5.config import MODEL_PATH, get_database_url
 from openclassrooms_projet5.db.session import clear_database_state, get_session_factory
+from scripts.seed_prediction_logs import DEFAULT_CSV_PATH, load_seed_rows, seed_prediction_logs
 
 
 VALID_PAYLOAD = {
@@ -127,3 +128,36 @@ def test_predict_validation_error_does_not_write_log():
 
     assert response.status_code == 422
     assert _execute_scalar("SELECT COUNT(*) FROM prediction_logs") == 0
+
+
+def test_seed_prediction_logs_inserts_reference_dataset():
+    database_url = get_database_url()
+    assert database_url is not None
+
+    seeded_count = seed_prediction_logs(
+        database_url,
+        load_seed_rows(DEFAULT_CSV_PATH),
+        truncate=True,
+    )
+
+    assert seeded_count == 2
+    assert _execute_scalar("SELECT COUNT(*) FROM prediction_logs") == 2
+
+    row = _fetch_prediction_log()
+    assert row["request_payload"]["poste"] in {"Cadre Commercial", "Ingenieur Data"}
+    assert row["prediction_attrition"] in {0, 1}
+    assert row["model_identifier"] == MODEL_PATH.name
+
+
+def test_seed_prediction_logs_is_idempotent_on_same_ids():
+    database_url = get_database_url()
+    assert database_url is not None
+
+    rows = load_seed_rows(DEFAULT_CSV_PATH)
+
+    first_count = seed_prediction_logs(database_url, rows, truncate=True)
+    second_count = seed_prediction_logs(database_url, rows, truncate=False)
+
+    assert first_count == 2
+    assert second_count == 2
+    assert _execute_scalar("SELECT COUNT(*) FROM prediction_logs") == 2

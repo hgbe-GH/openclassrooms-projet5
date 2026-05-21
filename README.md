@@ -18,15 +18,18 @@ API de deploiement du modele d'attrition du Projet 4 pour Futurisys.
 
 ## Objectif
 
-Ce projet transforme le modele de machine learning du Projet 4 en une API FastAPI
-testee, documentee, securisee et prete a etre integree dans un pipeline CI/CD.
-Le depot couvre l'exposition du modele, la persistance PostgreSQL des predictions,
-la qualite logicielle et la preparation du deploiement Hugging Face Spaces.
+Ce projet transforme un modele de machine learning en service FastAPI testable,
+documente, securise et deployable. Le depot couvre :
+
+- l'exposition du modele via une API HTTP ;
+- la persistance PostgreSQL des predictions ;
+- la validation et la tracabilite des appels ;
+- la qualite logicielle avec Pytest, couverture et Ruff ;
+- la preparation du deploiement sur Hugging Face Spaces via GitHub Actions.
 
 ## Demarrage rapide
 
-Les dependances sont declarees dans `pyproject.toml` et verrouillees dans `uv.lock`,
-ce qui remplace un `requirements.txt` classique.
+Les dependances sont declarees dans `pyproject.toml` et verrouillees dans `uv.lock`.
 
 Initialiser l'environnement :
 
@@ -40,6 +43,27 @@ Demarrer PostgreSQL puis creer la base et les tables :
 ```bash
 docker compose up -d postgres
 uv run python scripts/create_db.py
+```
+
+Inserer le jeu d'exemples versionne :
+
+```bash
+uv run python scripts/seed_prediction_logs.py --truncate
+```
+
+Verifier les lignes inserees :
+
+```bash
+uv run python - <<'PY'
+from sqlalchemy import create_engine, text
+from openclassrooms_projet5.config import get_database_url
+
+engine = create_engine(get_database_url(), future=True)
+with engine.connect() as connection:
+    result = connection.execute(text("SELECT COUNT(*) FROM prediction_logs"))
+    print({"prediction_logs_count": result.scalar_one()})
+engine.dispose()
+PY
 ```
 
 Lancer les verifications :
@@ -59,11 +83,10 @@ uv run uvicorn openclassrooms_projet5.api.main:app --reload
 
 Endpoints disponibles :
 
-- `GET /health` : verifie que l'API repond, que le modele est chargeable et expose
-  l'etat de PostgreSQL et de l'authentification.
-- `POST /predict` : retourne `probabilite_attrition`, `prediction_attrition` et
-  `threshold` pour un employe. Si PostgreSQL est configure, la prediction doit aussi
-  etre persistable en base.
+- `GET /health` : verifie l'etat du service, du chargement modele, de PostgreSQL et de
+  l'authentification.
+- `POST /predict` : valide le payload, calcule la prediction et persiste la trace quand
+  PostgreSQL est configure.
 - `GET /docs` : documentation Swagger/OpenAPI generee par FastAPI.
 
 Exemple d'appel authentifie :
@@ -75,6 +98,30 @@ curl -X POST "http://127.0.0.1:8000/predict" \
   -d @payload.json
 ```
 
+## Processus de traitement et stockage des donnees
+
+Le cycle de vie d'une prediction est le suivant :
+
+1. FastAPI recoit un payload JSON sur `POST /predict`.
+2. Pydantic valide les champs obligatoires, les types et les bornes.
+3. Le pipeline charge le modele XGBoost serialise et calcule :
+   `probabilite_attrition`, `prediction_attrition` et `threshold`.
+4. Si PostgreSQL est configure, l'API verifie d'abord la disponibilite de la base.
+5. Le service de persistance enregistre dans `prediction_logs` :
+   - le payload d'entree ;
+   - le score du modele ;
+   - la prediction binaire ;
+   - le seuil ;
+   - l'identifiant de l'artefact modele.
+6. La reponse HTTP renvoie uniquement les sorties utiles au consommateur de l'API.
+
+Ce flux permet de separer :
+
+- la validation d'entree ;
+- la logique de prediction ;
+- la tracabilite base de donnees ;
+- la supervision via `/health`.
+
 ## Authentification et securisation
 
 Le projet implemente une authentification simple par cle API :
@@ -83,29 +130,19 @@ Le projet implemente une authentification simple par cle API :
 - header attendu : `X-API-Key`
 - route protegee : `POST /predict`
 
-Si `API_KEY` n'est pas definie, l'authentification reste desactivee pour faciliter
-le travail local. Pour la soutenance, la configuration cible est d'executer l'API
-avec une cle definie.
+Comportement :
 
-Les secrets locaux restent hors Git. Utiliser `.env.example` comme base pour le
-fichier `.env` local.
+- si `API_KEY` n'est pas definie, l'authentification reste desactivee pour faciliter le
+  developpement local ;
+- si `API_KEY` est definie, une cle absente ou invalide renvoie `401 Unauthorized`.
 
-## Modele local
+Bonnes pratiques appliquees :
 
-Artefact attendu par l'API :
-
-```text
-models/attrition_xgboost_pipeline.joblib
-```
-
-Artefact chiffre versionne pour la CI/CD et le deploiement :
-
-```text
-models/attrition_xgboost_pipeline.joblib.enc
-```
-
-Le secret `MODEL_ARTIFACT_PASSPHRASE` permet de dechiffrer cet artefact dans GitHub
-Actions ou dans Hugging Face Spaces.
+- les secrets locaux restent hors Git ;
+- `.env.example` sert de base au fichier `.env` local ;
+- les secrets de CI/CD sont geres via GitHub Secrets ;
+- les cles doivent varier entre `dev`, `test` et `prod` ;
+- le modele chiffre (`.enc`) peut etre versionne, mais pas la passphrase de dechiffrement.
 
 ## PostgreSQL et migrations
 
@@ -125,11 +162,26 @@ reconstruire a partir des variables `POSTGRES_*`.
 Artefacts BDD fournis :
 
 - `scripts/create_db.py` : cree la base si besoin puis applique les migrations ;
+- `scripts/seed_prediction_logs.py` : insere le dataset d'exemples versionne ;
 - `alembic/versions/20260507_01_create_prediction_logs.py` : migration versionnee ;
 - `sql/create_prediction_logs.sql` : script SQL brut de creation ;
-- `sql/example_prediction_logs.sql` : exemple d'insertion ;
-- `references/prediction_logs_examples.csv` : exemples d'entrees/sorties ;
+- `sql/example_prediction_logs.sql` : exemple d'insertion SQL manuelle ;
+- `references/prediction_logs_examples.csv` : dataset d'exemples pour le seed ;
 - `docs/docs/database.md` : documentation et schema UML/ER.
+
+## Besoins analytiques couverts
+
+La table `prediction_logs` ne constitue pas un dashboard a elle seule, mais elle fournit
+un socle directement exploitable pour l'analyse et le reporting. Elle permet notamment :
+
+- l'audit d'un appel API et la tracabilite du payload ayant conduit a une prediction ;
+- le suivi du volume de predictions dans le temps ;
+- la distribution des probabilites d'attrition renvoyees par le modele ;
+- le suivi du taux de predictions positives ;
+- la comparaison des resultats entre versions d'artefacts modele.
+
+Ce positionnement repond a la demande du projet : preparer une base interrogeable pour des
+usages analytiques ou un tableau de bord ulterieur, sans ajouter ici un frontend BI.
 
 ## Tests et couverture
 
@@ -138,9 +190,10 @@ Le projet couvre :
 - le chargement du modele ;
 - `/health` ;
 - `/predict` ;
-- l'erreur de validation ;
-- la persistence PostgreSQL quand elle est active ;
+- les erreurs de validation ;
 - l'authentification par cle API ;
+- la persistance PostgreSQL quand elle est active ;
+- le seed du dataset d'exemples et son idempotence ;
 - la resolution de configuration.
 
 Commande recommandee :
@@ -171,7 +224,9 @@ Le depot est prepare pour un Space Docker :
 
 - front matter Hugging Face en tete de ce `README.md` ;
 - `Dockerfile` pour construire l'API ;
-- `scripts/start_api.sh` pour restaurer le modele chiffre puis lancer Uvicorn.
+- `scripts/start_api.sh` pour restaurer le modele chiffre puis lancer Uvicorn ;
+- variable GitHub `HF_SPACE` deja configuree ;
+- secrets GitHub `HF_TOKEN` et `MODEL_ARTIFACT_PASSPHRASE` deja configures.
 
 Variables/secrets attendus cote deploiement :
 
@@ -179,15 +234,29 @@ Variables/secrets attendus cote deploiement :
 - `HF_SPACE`
 - `MODEL_ARTIFACT_PASSPHRASE`
 - `API_KEY` si l'on veut forcer l'authentification en ligne
+- `HF_SPACE_URL` si l'on veut documenter explicitement l'URL publique finale
 
-URL de reference du Space une fois configure :
+Validation externe actuelle :
 
-- UI Hugging Face : `https://huggingface.co/spaces/<namespace>/<space>`
-- runtime : `https://<namespace>-<space>.hf.space`
+- l'infrastructure de deploiement est configuree dans le depot ;
+- la preuve publique finale depend encore de la disponibilite effective du Space et, si
+  l'authentification doit etre activee en ligne, de la presence d'une cle `API_KEY` dans
+  l'environnement cible.
 
-Je n'ai pas pu confirmer une URL publique existante depuis le depot seul. La
-configuration de deploiement est maintenant complete, mais la preuve finale depend
-encore des variables/secrets du projet distant.
+## Verifications realisees
+
+Verifications locales deja executees :
+
+- `uv run ruff check .`
+- `uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml`
+- tests d'integration PostgreSQL avec base active
+- verification du seed PostgreSQL et de son idempotence
+
+Verifications a confirmer cote runtime distant :
+
+- disponibilite publique de `GET /health`
+- disponibilite publique de `GET /docs`
+- comportement de `POST /predict` avec et sans cle API selon la configuration runtime
 
 ## Git et versionnement
 
@@ -216,8 +285,8 @@ Artefacts utiles pour l'oral :
 ├── docs                   <- Documentation MkDocs
 ├── models                 <- Artefacts ML locaux et chiffres
 ├── openclassrooms_projet5 <- Code source applicatif
-├── references             <- Exemples et artefacts de soutenance
+├── references             <- Jeux d'exemples et artefacts de soutenance
 ├── reports                <- Supports HTML
-├── scripts                <- Scripts utilitaires (DB, deploiement)
+├── scripts                <- Scripts utilitaires (DB, seed, deploiement)
 └── sql                    <- Scripts SQL de reference
 ```
