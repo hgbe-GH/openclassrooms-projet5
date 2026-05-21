@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 from datetime import datetime
+import json
 from pathlib import Path
 from uuid import UUID
 
@@ -13,12 +13,13 @@ from sqlalchemy import create_engine, text
 from openclassrooms_projet5.config import PROJ_ROOT, get_database_url
 
 DEFAULT_CSV_PATH = PROJ_ROOT / "references" / "prediction_logs_examples.csv"
+SeedRow = dict[str, object]
 
 
-def load_seed_rows(csv_path: Path) -> list[dict[str, object]]:
+def load_seed_rows(csv_path: Path) -> list[SeedRow]:
     with csv_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        rows: list[dict[str, object]] = []
+        rows: list[SeedRow] = []
 
         for raw_row in reader:
             rows.append(
@@ -38,7 +39,7 @@ def load_seed_rows(csv_path: Path) -> list[dict[str, object]]:
 
 def seed_prediction_logs(
     database_url: str,
-    rows: list[dict[str, object]],
+    rows: list[SeedRow],
     *,
     truncate: bool = False,
 ) -> int:
@@ -79,9 +80,13 @@ def seed_prediction_logs(
             )
 
             for row in rows:
-                payload = dict(row)
-                payload["request_payload"] = json.dumps(row["request_payload"])
-                connection.execute(statement, payload)
+                connection.execute(
+                    statement,
+                    {
+                        **row,
+                        "request_payload": json.dumps(row["request_payload"]),
+                    },
+                )
     finally:
         engine.dispose()
 
