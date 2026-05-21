@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 
 from openclassrooms_projet5.api.main import app
-from openclassrooms_projet5.config import MODEL_PATH
+from openclassrooms_projet5.config import MODEL_PATH, get_database_url
 from openclassrooms_projet5.db.session import clear_database_state, get_session_factory
 
 
@@ -41,8 +41,8 @@ VALID_PAYLOAD = {
 
 
 pytestmark = pytest.mark.skipif(
-    not os.getenv("DATABASE_URL"),
-    reason="DATABASE_URL is required for PostgreSQL integration tests.",
+    not (os.getenv("DATABASE_URL") or get_database_url()),
+    reason="A PostgreSQL configuration is required for integration tests.",
 )
 
 client = TestClient(app)

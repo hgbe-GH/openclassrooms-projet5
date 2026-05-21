@@ -26,6 +26,7 @@ jobs:
       POSTGRES_DB: attrition_api
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/attrition_api
     services:
@@ -71,14 +72,20 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Run database migrations
-        run: uv run alembic upgrade head
+      - name: Create database and run migrations
+        run: uv run python scripts/create_db.py --skip-create-db
 
       - name: Run tests
-        run: uv run pytest
+        run: uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
 
       - name: Run lint
         run: uv run ruff check .
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
   deploy-huggingface:
     name: Deploy to Hugging Face Spaces

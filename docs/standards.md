@@ -18,8 +18,8 @@ Avant toute fusion dans `develop` ou `main`, exécuter :
 ```bash
 uv sync
 docker compose up -d postgres
-uv run alembic upgrade head
-uv run pytest
+uv run python scripts/create_db.py
+uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
 uv run ruff check .
 ```
 
@@ -37,9 +37,11 @@ Variables locales attendues pour la journalisation PostgreSQL :
 - `POSTGRES_DB`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
+- `POSTGRES_HOST`
 - `POSTGRES_PORT`
 - `DATABASE_URL`
 - `DB_ECHO` (optionnel)
+- `API_KEY` (recommande pour les environnements hors developpement)
 
 Secrets et variables attendus pour GitHub Actions :
 
@@ -48,13 +50,16 @@ Secrets et variables attendus pour GitHub Actions :
 - `HF_TOKEN` : token Hugging Face avec droit d'écriture sur le Space.
 - `HF_SPACE` : variable GitHub contenant le chemin du Space Hugging Face, par exemple
   `username/space-name`.
+- `API_KEY` : cle API pour proteger `POST /predict` dans les environnements cibles.
 
 ## Standards ML
 
 - Les modèles sérialisés et données réelles ne sont pas versionnés dans Git.
 - Les artefacts locaux sont placés dans `models/`.
 - Les entrées API sont validées avec Pydantic avant prédiction.
-- Les prédictions réussies peuvent être journalisées dans PostgreSQL si `DATABASE_URL`
-  est configurée.
+- Les predictions passent par une persistance PostgreSQL des qu'une configuration base est
+  active ; un environnement avec DB configuree doit echouer plutot que perdre la trace.
+- `POST /predict` doit etre protegee par cle API des qu'une variable `API_KEY` est definie.
 - Les tests doivent couvrir au minimum le chargement du modèle, `/health`, `/predict`
-  les erreurs de validation et la persistance PostgreSQL quand elle est activée.
+  les erreurs de validation, l'authentification et la persistance PostgreSQL quand elle
+  est activée.

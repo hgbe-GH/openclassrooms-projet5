@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from loguru import logger
@@ -30,8 +31,8 @@ def _get_bool_env(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def get_database_url() -> str | None:
-    value = os.getenv("DATABASE_URL")
+def _get_str_env(name: str) -> str | None:
+    value = os.getenv(name)
     if value is None:
         return None
 
@@ -39,12 +40,63 @@ def get_database_url() -> str | None:
     return stripped_value or None
 
 
+def _build_database_url_from_postgres_env() -> str | None:
+    db_name = _get_str_env("POSTGRES_DB")
+    db_user = _get_str_env("POSTGRES_USER")
+    db_password = _get_str_env("POSTGRES_PASSWORD")
+    db_host = _get_str_env("POSTGRES_HOST") or "localhost"
+    db_port = _get_str_env("POSTGRES_PORT") or "5432"
+
+    if not all([db_name, db_user, db_password]):
+        return None
+
+    return (
+        "postgresql+psycopg://"
+        f"{quote_plus(db_user)}:{quote_plus(db_password)}@"
+        f"{db_host}:{db_port}/{quote_plus(db_name)}"
+    )
+
+
+def get_database_url() -> str | None:
+    explicit_url = _get_str_env("DATABASE_URL")
+    if explicit_url:
+        return explicit_url
+
+    return _build_database_url_from_postgres_env()
+
+
 def get_db_echo() -> bool:
     return _get_bool_env("DB_ECHO", default=False)
 
 
+def get_api_key() -> str | None:
+    return _get_str_env("API_KEY")
+
+
+def is_authentication_enabled() -> bool:
+    return bool(get_api_key())
+
+
+def get_hf_space() -> str | None:
+    return _get_str_env("HF_SPACE")
+
+
+def get_hf_space_url() -> str | None:
+    explicit_url = _get_str_env("HF_SPACE_URL")
+    if explicit_url:
+        return explicit_url
+
+    hf_space = get_hf_space()
+    if not hf_space:
+        return None
+
+    return f"https://huggingface.co/spaces/{hf_space}"
+
+
 DATABASE_URL = get_database_url()
 DB_ECHO = get_db_echo()
+API_KEY = get_api_key()
+HF_SPACE_URL = get_hf_space_url()
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"

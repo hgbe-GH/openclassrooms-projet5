@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import openclassrooms_projet5.api.main as app_main
+import openclassrooms_projet5.api.security as api_security
 from openclassrooms_projet5.api.main import app
 from openclassrooms_projet5.modeling.predict import get_predictor
 
@@ -49,6 +50,7 @@ def test_model_loads():
 def test_health_returns_model_status_when_database_disabled(monkeypatch):
     monkeypatch.setattr(app_main, "get_predictor", lambda: object())
     monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+    monkeypatch.setattr(app_main, "is_authentication_enabled", lambda: False)
 
     response = client.get("/health")
 
@@ -58,6 +60,7 @@ def test_health_returns_model_status_when_database_disabled(monkeypatch):
     assert body["model_loaded"] is True
     assert body["database_logging_enabled"] is False
     assert body["database_connected"] is False
+    assert body["authentication_enabled"] is False
     assert body["detail"] is None
 
 
@@ -65,6 +68,7 @@ def test_health_returns_model_status_when_database_available(monkeypatch):
     monkeypatch.setattr(app_main, "get_predictor", lambda: object())
     monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
     monkeypatch.setattr(app_main, "check_database_connection", lambda: (True, None))
+    monkeypatch.setattr(app_main, "is_authentication_enabled", lambda: True)
 
     response = client.get("/health")
 
@@ -74,12 +78,14 @@ def test_health_returns_model_status_when_database_available(monkeypatch):
     assert body["model_loaded"] is True
     assert body["database_logging_enabled"] is True
     assert body["database_connected"] is True
+    assert body["authentication_enabled"] is True
     assert body["detail"] is None
 
 
 def test_health_returns_degraded_status_when_database_unavailable(monkeypatch):
     monkeypatch.setattr(app_main, "get_predictor", lambda: object())
     monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
+    monkeypatch.setattr(app_main, "is_authentication_enabled", lambda: False)
     monkeypatch.setattr(
         app_main,
         "check_database_connection",
@@ -98,6 +104,7 @@ def test_health_returns_degraded_status_when_database_unavailable(monkeypatch):
 
 
 def test_predict_returns_attrition_prediction(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
     monkeypatch.setattr(app_main, "log_prediction", lambda payload, prediction: False)
 
     response = client.post("/predict", json=VALID_PAYLOAD)
@@ -109,7 +116,9 @@ def test_predict_returns_attrition_prediction(monkeypatch):
     assert 0 <= body["threshold"] <= 1
 
 
-def test_predict_returns_attrition_prediction_when_logging_fails(monkeypatch):
+def test_predict_returns_503_when_logging_fails_without_database_preflight(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+
     def fake_log_prediction(payload, prediction):
         raise RuntimeError("database unavailable")
 
@@ -117,14 +126,41 @@ def test_predict_returns_attrition_prediction_when_logging_fails(monkeypatch):
 
     response = client.post("/predict", json=VALID_PAYLOAD)
 
-    assert response.status_code == 200
-    body = response.json()
-    assert 0 <= body["probabilite_attrition"] <= 1
-    assert body["prediction_attrition"] in {0, 1}
-    assert 0 <= body["threshold"] <= 1
+    assert response.status_code == 503
+    assert "Prediction persistence failed" in response.json()["detail"]
+
+
+def test_predict_returns_503_when_database_is_required_but_unavailable(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
+    monkeypatch.setattr(
+        app_main,
+        "check_database_connection",
+        lambda: (False, "database unavailable"),
+    )
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 503
+    assert "database unavailable" in response.json()["detail"]
+
+
+def test_predict_returns_503_when_logging_fails_with_database_enabled(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: True)
+    monkeypatch.setattr(app_main, "check_database_connection", lambda: (True, None))
+
+    def fake_log_prediction(payload, prediction):
+        raise RuntimeError("database unavailable")
+
+    monkeypatch.setattr(app_main, "log_prediction", fake_log_prediction)
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 503
+    assert "Prediction persistence failed" in response.json()["detail"]
 
 
 def test_predict_rejects_missing_required_field_without_logging(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
     calls = {"count": 0}
 
     def fake_log_prediction(payload, prediction):
@@ -139,3 +175,20 @@ def test_predict_rejects_missing_required_field_without_logging(monkeypatch):
 
     assert response.status_code == 422
     assert calls["count"] == 0
+
+
+def test_predict_requires_api_key_when_authentication_is_enabled(monkeypatch):
+    monkeypatch.setattr(api_security, "is_authentication_enabled", lambda: True)
+    monkeypatch.setattr(api_security, "get_api_key", lambda: "test-api-key")
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+    monkeypatch.setattr(app_main, "log_prediction", lambda payload, prediction: False)
+
+    unauthorized_response = client.post("/predict", json=VALID_PAYLOAD)
+    authorized_response = client.post(
+        "/predict",
+        json=VALID_PAYLOAD,
+        headers={"X-API-Key": "test-api-key"},
+    )
+
+    assert unauthorized_response.status_code == 401
+    assert authorized_response.status_code == 200

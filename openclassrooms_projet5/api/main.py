@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from loguru import logger
 
 from openclassrooms_projet5.api.schemas import (
@@ -6,7 +6,8 @@ from openclassrooms_projet5.api.schemas import (
     HealthResponse,
     PredictionResponse,
 )
-from openclassrooms_projet5.config import MODEL_PATH
+from openclassrooms_projet5.api.security import require_api_key
+from openclassrooms_projet5.config import MODEL_PATH, is_authentication_enabled
 from openclassrooms_projet5.db.service import log_prediction
 from openclassrooms_projet5.db.session import (
     check_database_connection,
@@ -47,12 +48,26 @@ def health() -> HealthResponse:
         model_path=str(MODEL_PATH),
         database_connected=database_connected,
         database_logging_enabled=database_logging_enabled,
+        authentication_enabled=is_authentication_enabled(),
         detail=" | ".join(details) if details else None,
     )
 
 
 @app.post("/predict", response_model=PredictionResponse)
-def predict(payload: EmployeeFeatures) -> PredictionResponse:
+def predict(
+    payload: EmployeeFeatures,
+    _: None = Depends(require_api_key),
+) -> PredictionResponse:
+    database_logging_enabled = is_database_logging_enabled()
+    if database_logging_enabled:
+        database_connected, database_detail = check_database_connection()
+        if not database_connected:
+            detail = database_detail or "database unavailable"
+            raise HTTPException(
+                status_code=503,
+                detail=f"Database unavailable for prediction logging: {detail}",
+            )
+
     try:
         prediction = get_predictor().predict(payload.model_dump())
     except FileNotFoundError as exc:
@@ -62,8 +77,12 @@ def predict(payload: EmployeeFeatures) -> PredictionResponse:
 
     try:
         log_prediction(payload.model_dump(), prediction)
-    except Exception:
+    except Exception as exc:
         logger.exception("Prediction logging failed.")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Prediction persistence failed: {exc}",
+        ) from exc
 
     return PredictionResponse(
         probabilite_attrition=prediction.probabilite_attrition,

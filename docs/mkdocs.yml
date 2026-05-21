@@ -1,4 +1,7 @@
 site_name: openclassrooms-projet5
-# 
 site_author: hgbe
-# 
+nav:
+  - Accueil: index.md
+  - Demarrage: getting-started.md
+  - Base de donnees: database.md
+  - Securite: security.md

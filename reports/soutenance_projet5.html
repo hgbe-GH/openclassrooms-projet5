@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soutenance Projet 5 - Deployer un modele de Machine Learning</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --paper: #fffdf9;
+      --ink: #22313d;
+      --muted: #5f6e7a;
+      --line: #d9cebf;
+      --accent: #9a432f;
+      --accent-soft: #f8e4d7;
+      --green: #48652f;
+      --green-soft: #e7f0dd;
+      --blue-soft: #e3eef9;
+      --shadow: 0 18px 45px rgba(64, 44, 28, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #faf6f0 0%, var(--bg) 100%);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 18px 80px;
+    }
+    .hero, section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 34px;
+      background: linear-gradient(140deg, rgba(154, 67, 47, 0.98), rgba(94, 38, 27, 0.98));
+      color: #fff8f3;
+    }
+    h1, h2, h3 { margin-top: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; margin-bottom: 12px; }
+    section { margin-top: 24px; padding: 28px; }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #fffaf3;
+    }
+    .success { background: linear-gradient(180deg, #fbfffa 0%, var(--green-soft) 100%); }
+    .info { background: linear-gradient(180deg, #fbfdff 0%, var(--blue-soft) 100%); }
+    .accent { background: linear-gradient(180deg, #fffaf7 0%, var(--accent-soft) 100%); }
+    code {
+      background: #f4ecdf;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    ul { margin: 10px 0 0 18px; padding: 0; }
+    li + li { margin-top: 6px; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <h1>Projet 5 - Deploiement d'un modele de ML</h1>
+      <p>Support de soutenance concis pour presenter le depot, l'API FastAPI, PostgreSQL, les tests, la CI/CD et le deploiement cible sur Hugging Face Spaces.</p>
+      <p class="muted">Fil conducteur conseille : besoin client, architecture, demo API, persistance PostgreSQL, qualite logicielle, pipeline CI/CD, limites et prochaines etapes.</p>
+    </section>
+
+    <section>
+      <h2>Message d'ouverture</h2>
+      <div class="grid">
+        <article class="card accent">
+          <h3>Probleme</h3>
+          <p>Transformer le modele d'attrition du Projet 4 en service exploitable par une API, testable et deployable.</p>
+        </article>
+        <article class="card success">
+          <h3>Reponse</h3>
+          <p>Une API FastAPI documentee, protegee par cle API, avec journalisation PostgreSQL et pipeline GitHub Actions.</p>
+        </article>
+        <article class="card info">
+          <h3>Resultat</h3>
+          <p>Un POC industrialisable, relancable localement et presentable en soutenance avec preuves techniques.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Parcours de demo recommande</h2>
+      <ul>
+        <li>Montrer la racine du depot et [README.md](/home/hgbe/openclassrooms/Projet5/README.md).</li>
+        <li>Presenter <code>POST /predict</code>, <code>GET /health</code> et la documentation Swagger.</li>
+        <li>Executer ou commenter un appel avec header <code>X-API-Key</code>.</li>
+        <li>Montrer la table <code>prediction_logs</code>, le script <code>scripts/create_db.py</code> et le schema BDD.</li>
+        <li>Afficher les tests Pytest, la couverture et le workflow GitHub Actions.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Points techniques a verbaliser</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Architecture</h3>
+          <p>Separation claire entre API, prediction, configuration et persistance.</p>
+        </article>
+        <article class="card">
+          <h3>Securite</h3>
+          <p>Cle API via <code>X-API-Key</code> pour proteger les predictions.</p>
+        </article>
+        <article class="card">
+          <h3>Base de donnees</h3>
+          <p>Persistances des entrees/sorties du modele pour la tracabilite.</p>
+        </article>
+        <article class="card">
+          <h3>Qualite</h3>
+          <p>Tests unitaires et integration, lint Ruff, couverture Pytest-Cov.</p>
+        </article>
+        <article class="card">
+          <h3>CI/CD</h3>
+          <p>Workflow GitHub Actions avec PostgreSQL, migrations et preparation du deploiement.</p>
+        </article>
+        <article class="card">
+          <h3>Deploiement</h3>
+          <p>Configuration Docker pour Hugging Face Spaces avec restauration du modele chiffre.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Questions probables et reponses courtes</h2>
+      <ul>
+        <li>Pourquoi FastAPI ? Parce qu'il combine validation, documentation OpenAPI et mise en service rapide.</li>
+        <li>Pourquoi PostgreSQL ? Pour tracer les appels et conserver les entrees/sorties du modele.</li>
+        <li>Comment la qualite est-elle controlee ? Avec Pytest, tests d'integration, Ruff et un workflow CI.</li>
+        <li>Comment la securite est-elle traitee ? Avec une cle API, des secrets non versionnes et une separation des environnements.</li>
+        <li>Quelles sont les limites ? Le deploiement final depend encore des secrets et variables cibles de l'environnement distant.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
