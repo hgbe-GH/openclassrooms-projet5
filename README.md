@@ -236,12 +236,32 @@ Variables/secrets attendus cote deploiement :
 - `API_KEY` si l'on veut forcer l'authentification en ligne
 - `HF_SPACE_URL` si l'on veut documenter explicitement l'URL publique finale
 
-Validation externe actuelle :
+URLs verifiees :
 
-- l'infrastructure de deploiement est configuree dans le depot ;
-- la preuve publique finale depend encore de la disponibilite effective du Space et, si
-  l'authentification doit etre activee en ligne, de la presence d'une cle `API_KEY` dans
-  l'environnement cible.
+- UI Hugging Face : `https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5`
+- runtime : `https://hgbe-gh-openclassrooms-projet5.hf.space`
+
+Etat verifie le `21 mai 2026` :
+
+- `GET /health` repond `200` ;
+- `GET /docs` repond `200` ;
+- `POST /predict` sans cle repond `401` ;
+- `POST /predict` avec la cle runtime configuree repond `200`.
+
+Le runtime public actuellement expose :
+
+- un modele charge avec succes ;
+- une authentification activee ;
+- une persistance PostgreSQL desactivee cote Space.
+
+Exemple `curl` aligne sur le runtime public :
+
+```bash
+curl -X POST "https://hgbe-gh-openclassrooms-projet5.hf.space/predict" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <API_KEY>" \
+  -d @payload.json
+```
 
 ## Verifications realisees
 
@@ -251,12 +271,15 @@ Verifications locales deja executees :
 - `uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml`
 - tests d'integration PostgreSQL avec base active
 - verification du seed PostgreSQL et de son idempotence
+- execution reelle de `uv run python scripts/seed_prediction_logs.py --truncate`
 
-Verifications a confirmer cote runtime distant :
+Verifications distantes executees le `21 mai 2026` :
 
-- disponibilite publique de `GET /health`
-- disponibilite publique de `GET /docs`
-- comportement de `POST /predict` avec et sans cle API selon la configuration runtime
+- `https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5` : `200`
+- `https://hgbe-gh-openclassrooms-projet5.hf.space/health` : `200`
+- `https://hgbe-gh-openclassrooms-projet5.hf.space/docs` : `200`
+- `POST /predict` sans cle : `401`
+- `POST /predict` avec cle runtime configuree : `200`
 
 ## Git et versionnement
 
