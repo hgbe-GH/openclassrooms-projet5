@@ -104,14 +104,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare model artifact
-        run: |
-          mkdir -p models
-          openssl enc -d -aes-256-cbc -pbkdf2 \
-            -in models/attrition_xgboost_pipeline.joblib.enc \
-            -out models/attrition_xgboost_pipeline.joblib \
-            -pass pass:"${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}"
-
       - name: Push repository to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -125,7 +117,6 @@ jobs:
           rsync -a \
             --exclude=".git" \
             --exclude=".github" \
-            --exclude="models/*.enc" \
             --exclude="models/*.joblib" \
             ./ "${DEPLOY_DIR}/"
 
