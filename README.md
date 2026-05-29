@@ -50,6 +50,7 @@ FastAPI (/predict, /health, /docs)
 
 Point d'entree principal a utiliser pendant la soutenance :
 
+- cockpit local : URL annoncee par `./scripts/start_demo.sh`
 - Space public : `https://hgbe-gh-openclassrooms-projet5.hf.space`
 - Swagger / OpenAPI : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs`
 - cle de demo : `X-API-Key: change-me-for-local-dev`
@@ -80,8 +81,48 @@ curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
 
 Fallback local si le Space ralentit :
 
-- `http://127.0.0.1:8000/docs`
+- URL locale du cockpit annoncee par le script
+- URL locale `/docs` annoncee par le script
 - preuve PostgreSQL et couverture de tests disponibles uniquement en local
+
+## Mode soutenance automatise
+
+Le mode recommande pour l'oral n'est plus `support + terminal`, mais un cockpit local
+qui orchestre le Space public et les preuves locales.
+
+Lancement :
+
+```bash
+./scripts/start_demo.sh
+```
+
+Le script :
+
+- active `ENABLE_DEMO_UI=true` ;
+- demarre l'API locale avec le cockpit si necessaire ;
+- prepare un snapshot de demo ;
+- annonce l'URL locale du cockpit.
+
+Routes internes ajoutees pour la soutenance :
+
+- `GET /demo`
+- `GET /demo-api/public/status`
+- `POST /demo-api/public/run`
+- `GET /demo-api/local/health`
+- `POST /demo-api/local/db-proof`
+- `POST /demo-api/local/quality`
+
+Variables locales importantes :
+
+- `ENABLE_DEMO_UI=true`
+- `API_KEY=change-me-for-local-dev`
+- `HF_SPACE_URL=https://hgbe-gh-openclassrooms-projet5.hf.space`
+- `DATABASE_URL=...` pour la preuve PostgreSQL
+
+Plan B :
+
+- si le cockpit ne demarre pas, revenir a `/docs` + support HTML + terminal ;
+- si le Space ralentit, garder le cockpit local et montrer la preuve PostgreSQL puis la qualite.
 
 ## Demarrage local
 
@@ -210,6 +251,12 @@ uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-repor
 uv run ruff check .
 ```
 
+Generer un snapshot pre-soutenance :
+
+```bash
+uv run python scripts/demo_snapshot.py
+```
+
 ## API et OpenAPI
 
 ### `GET /health`
@@ -335,6 +382,7 @@ Le depot est prepare pour un Space Docker avec :
 - front matter Hugging Face en tete de ce `README.md` ;
 - `Dockerfile` ;
 - `scripts/start_api.sh` ;
+- landing HTML minimal sur `GET /` ;
 - artefact modele chiffre `models/attrition_xgboost_pipeline.joblib.enc`.
 
 Etat de verification date du `29 mai 2026` :

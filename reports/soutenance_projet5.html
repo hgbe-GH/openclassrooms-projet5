@@ -390,29 +390,23 @@ docs / reports          doc technique et soutenance</pre>
             <span class="label">A ouvrir</span>
             <p class="accent">Sequence stricte</p>
             <ol>
-              <li>ouvrir <code>https://hgbe-gh-openclassrooms-projet5.hf.space/docs</code></li>
-              <li>montrer le schema et les erreurs documentees</li>
-              <li>tester <code>POST /predict</code> sans cle -&gt; <code>401</code></li>
-              <li>tester <code>POST /predict</code> avec la cle -&gt; <code>200</code></li>
-              <li>si demande BDD, basculer en local pour la preuve SQL</li>
+              <li>ouvrir l'URL <code>/demo</code> annoncee par <code>./scripts/start_demo.sh</code></li>
+              <li>cliquer <code>Lancer la demo publique</code></li>
+              <li>montrer les cartes <code>/docs 200</code>, <code>/health 200</code>, <code>401</code>, <code>200</code></li>
+              <li>ouvrir le Space <code>/docs</code> si le jury veut voir Swagger</li>
+              <li>cliquer preuve PostgreSQL puis qualite si demande</li>
             </ol>
           </div>
           <div class="card">
             <span class="label">Commande a lancer</span>
-            <p class="accent">Space public</p>
-            <pre>curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/docs
-curl -sS -o /dev/null -w '%{http_code}\n' \
-  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
-  -H 'Content-Type: application/json' \
-  -d @references/predict_payload_example.json
+            <p class="accent">Mode soutenance automatise</p>
+            <pre>./scripts/start_demo.sh
 
-curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me-for-local-dev' \
-  -d @references/predict_payload_example.json</pre>
+# puis ouvrir l'URL affichee par le script</pre>
           </div>
           <div class="card">
             <span class="label">Resultat attendu</span>
+            <p><span class="result-ok">cockpit local -> 200</span></p>
             <p><span class="result-ok">/docs -> 200</span></p>
             <p><span class="result-warn">/predict sans cle -> 401</span></p>
             <p><span class="result-ok">/predict avec cle -> 200</span></p>
@@ -423,8 +417,8 @@ curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
           <div class="card proof">
             <p class="accent">Plan B</p>
             <p>
-              Si le Space ralentit, je repasse immediatement sur le local deja pret :
-              <code>http://127.0.0.1:8000/docs</code>.
+              Si le cockpit ne repond pas, je reviens au support HTML, puis a
+              <code>/docs</code> sur l'URL locale annoncee et au terminal de secours.
             </p>
           </div>
           <div class="card proof">
@@ -442,11 +436,11 @@ curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
         <h2>Tests Pytest et couverture</h2>
         <div class="grid three">
           <div class="card">
-            <div class="metric-small">42</div>
+            <div class="metric-small">69</div>
             <p>tests verifies localement</p>
           </div>
           <div class="card">
-            <div class="metric-small">97%</div>
+            <div class="metric-small">96%</div>
             <p>couverture globale actuelle</p>
           </div>
           <div class="card">

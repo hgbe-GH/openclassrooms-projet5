@@ -54,3 +54,24 @@ def test_get_hf_space_url_uses_explicit_env_value(monkeypatch):
     monkeypatch.setenv("HF_SPACE", "owner/project")
 
     assert config.get_hf_space_url() == "https://example.test/space"
+
+
+def test_get_hf_space_runtime_url_prefers_explicit_value(monkeypatch):
+    monkeypatch.setenv("HF_SPACE_URL", "https://example-runtime.hf.space")
+    monkeypatch.setenv("HF_SPACE", "owner/project")
+
+    assert config.get_hf_space_runtime_url() == "https://example-runtime.hf.space"
+
+
+def test_get_hf_space_runtime_url_builds_runtime_domain(monkeypatch):
+    monkeypatch.delenv("HF_SPACE_URL", raising=False)
+    monkeypatch.setenv("HF_SPACE", "owner/project")
+
+    assert config.get_hf_space_runtime_url() == "https://owner-project.hf.space"
+
+
+def test_demo_ui_flag_and_snapshot_path(monkeypatch):
+    monkeypatch.setenv("ENABLE_DEMO_UI", "true")
+
+    assert config.is_demo_ui_enabled() is True
+    assert config.get_demo_snapshot_path().name == "demo_snapshot.json"

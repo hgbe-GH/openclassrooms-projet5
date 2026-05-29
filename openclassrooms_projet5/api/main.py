@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException
 from loguru import logger
 
+from openclassrooms_projet5.api.demo import router as demo_router
 from openclassrooms_projet5.api.schemas import (
     HEALTH_RESPONSE_DEGRADED_EXAMPLE,
     HEALTH_RESPONSE_OK_EXAMPLE,
@@ -38,33 +39,7 @@ app = FastAPI(
 )
 
 
-@app.get(
-    "/health",
-    response_model=HealthResponse,
-    tags=["monitoring"],
-    summary="Verifier l'etat du service",
-    description=(
-        "Controle le chargement du modele, l'etat de PostgreSQL quand la journalisation "
-        "est active, et le statut de l'authentification."
-    ),
-    responses={
-        200: {
-            "description": "Etat technique du service.",
-            "content": {
-                "application/json": {
-                    "examples": {
-                        "ok": {"summary": "Service operationnel", "value": HEALTH_RESPONSE_OK_EXAMPLE},
-                        "degraded": {
-                            "summary": "Service degrade",
-                            "value": HEALTH_RESPONSE_DEGRADED_EXAMPLE,
-                        },
-                    }
-                }
-            },
-        }
-    },
-)
-def health() -> HealthResponse:
+def collect_health_response() -> HealthResponse:
     details: list[str] = []
     model_loaded = False
 
@@ -92,6 +67,36 @@ def health() -> HealthResponse:
         authentication_enabled=is_authentication_enabled(),
         detail=" | ".join(details) if details else None,
     )
+
+
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    tags=["monitoring"],
+    summary="Verifier l'etat du service",
+    description=(
+        "Controle le chargement du modele, l'etat de PostgreSQL quand la journalisation "
+        "est active, et le statut de l'authentification."
+    ),
+    responses={
+        200: {
+            "description": "Etat technique du service.",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "ok": {"summary": "Service operationnel", "value": HEALTH_RESPONSE_OK_EXAMPLE},
+                        "degraded": {
+                            "summary": "Service degrade",
+                            "value": HEALTH_RESPONSE_DEGRADED_EXAMPLE,
+                        },
+                    }
+                }
+            },
+        }
+    },
+)
+def health() -> HealthResponse:
+    return collect_health_response()
 
 
 @app.post(
@@ -180,3 +185,6 @@ def predict(
         prediction_attrition=prediction.prediction_attrition,
         threshold=prediction.threshold,
     )
+
+
+app.include_router(demo_router)
