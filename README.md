@@ -46,6 +46,43 @@ FastAPI (/predict, /health, /docs)
     +--> Hugging Face Space Docker
 ```
 
+## Demo soutenance
+
+Point d'entree principal a utiliser pendant la soutenance :
+
+- Space public : `https://hgbe-gh-openclassrooms-projet5.hf.space`
+- Swagger / OpenAPI : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs`
+- cle de demo : `X-API-Key: change-me-for-local-dev`
+
+Etat verifie le `29 mai 2026` :
+
+- `GET /health` : `200`
+- `GET /docs` : `200`
+- `POST /predict` sans cle : `401`
+- `POST /predict` avec `X-API-Key: change-me-for-local-dev` : `200`
+
+Commandes de demo minimales :
+
+```bash
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  https://hgbe-gh-openclassrooms-projet5.hf.space/docs
+
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
+  -H 'Content-Type: application/json' \
+  -d @references/predict_payload_example.json
+
+curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me-for-local-dev' \
+  -d @references/predict_payload_example.json
+```
+
+Fallback local si le Space ralentit :
+
+- `http://127.0.0.1:8000/docs`
+- preuve PostgreSQL et couverture de tests disponibles uniquement en local
+
 ## Demarrage local
 
 ### Prerequis
@@ -303,27 +340,30 @@ Le depot est prepare pour un Space Docker avec :
 Etat de verification date du `29 mai 2026` :
 
 - page Space : `https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5` repond `200`
-- runtime public : `https://hgbe-gh-openclassrooms-projet5.hf.space/health` repondait `500`
+- runtime public : `https://hgbe-gh-openclassrooms-projet5.hf.space/health` repond `200`
+- documentation publique : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs` repond `200`
+- `POST /predict` sans cle repond `401`
+- `POST /predict` avec `X-API-Key: change-me-for-local-dev` repond `200`
 
-Correctif applique dans ce depot :
+Choix de demonstration :
 
-- `scripts/start_api.sh` est maintenant compatible POSIX `sh` ;
-- `Dockerfile` force le bit executable du script d'entree.
+- le Space public sert de preuve de deploiement et de demonstration API ;
+- PostgreSQL reste demontre localement pour la preuve de persistance ;
+- la meme cle API est utilisee en local et sur le Space pour eviter toute friction pendant l'oral.
 
-Conclusion verifiable :
-
-- le depot contient un correctif plausible pour la panne du runtime public ;
-- une revalidation publique reste a faire apres push et redeploiement du Space.
-
-Checks a relancer apres redeploiement :
+Checks de demo a relancer :
 
 ```bash
 curl -sS -o /dev/null -w '%{http_code}\n' https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5
 curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/health
 curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/docs
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
+  -H "Content-Type: application/json" \
+  -d @references/predict_payload_example.json
 curl -X POST "https://hgbe-gh-openclassrooms-projet5.hf.space/predict" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: <API_KEY>" \
+  -H "X-API-Key: change-me-for-local-dev" \
   -d @references/predict_payload_example.json
 ```
 

@@ -183,6 +183,29 @@
         font-weight: 700;
       }
 
+      .label {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(217, 119, 6, 0.12);
+        color: var(--accent-2);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .result-ok {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .result-warn {
+        color: var(--accent-2);
+        font-weight: 700;
+      }
+
       @media (max-width: 900px) {
         .two,
         .three {
@@ -213,6 +236,18 @@
           <div class="card">
             <div class="metric">1</div>
             <p>pipeline CI/CD pour tester et deployer</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <span class="label">A ouvrir</span>
+            <p class="accent"><code>https://hgbe-gh-openclassrooms-projet5.hf.space/docs</code></p>
+            <p>Point d'entree principal de la demo pendant la soutenance.</p>
+          </div>
+          <div class="card">
+            <span class="label">Cle de demo</span>
+            <p class="accent"><code>X-API-Key: change-me-for-local-dev</code></p>
+            <p>Meme cle en local et sur le Space pour eviter tout changement en live.</p>
           </div>
         </div>
       </section>
@@ -319,6 +354,7 @@ docs / reports          doc technique et soutenance</pre>
         <h2>Swagger / OpenAPI et securite</h2>
         <div class="grid two">
           <div class="card">
+            <span class="label">A cliquer</span>
             <p class="accent">Documentation integree</p>
             <ul>
               <li>schemas d'entree et de sortie visibles dans Swagger</li>
@@ -327,6 +363,7 @@ docs / reports          doc technique et soutenance</pre>
             </ul>
           </div>
           <div class="card">
+            <span class="label">A verifier</span>
             <p class="accent">Securisation</p>
             <ul>
               <li>header attendu : <code>X-API-Key</code></li>
@@ -347,38 +384,56 @@ docs / reports          doc technique et soutenance</pre>
 
       <section class="slide">
         <span class="slide-id">Slide 6</span>
-        <h2>Demo live en 2 a 3 minutes</h2>
-        <div class="grid two">
+        <h2>Cockpit de demo Space-first</h2>
+        <div class="grid three">
           <div class="card">
+            <span class="label">A ouvrir</span>
             <p class="accent">Sequence stricte</p>
             <ol>
-              <li>ouvrir <code>GET /docs</code></li>
+              <li>ouvrir <code>https://hgbe-gh-openclassrooms-projet5.hf.space/docs</code></li>
               <li>montrer le schema et les erreurs documentees</li>
-              <li>lancer <code>POST /predict</code> sans cle -&gt; <code>401</code></li>
-              <li>lancer <code>POST /predict</code> avec la cle -&gt; <code>200</code></li>
-              <li>faire un <code>SELECT</code> sur <code>prediction_logs</code></li>
+              <li>tester <code>POST /predict</code> sans cle -&gt; <code>401</code></li>
+              <li>tester <code>POST /predict</code> avec la cle -&gt; <code>200</code></li>
+              <li>si demande BDD, basculer en local pour la preuve SQL</li>
             </ol>
           </div>
           <div class="card">
-            <p class="accent">Commandes a preparer</p>
-            <pre>curl -sS http://127.0.0.1:8000/health
+            <span class="label">Commande a lancer</span>
+            <p class="accent">Space public</p>
+            <pre>curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/docs
 curl -sS -o /dev/null -w '%{http_code}\n' \
-  -X POST http://127.0.0.1:8000/predict \
+  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
   -H 'Content-Type: application/json' \
   -d @references/predict_payload_example.json
 
-curl -sS -X POST http://127.0.0.1:8000/predict \
+curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
   -H 'Content-Type: application/json' \
   -H 'X-API-Key: change-me-for-local-dev' \
   -d @references/predict_payload_example.json</pre>
           </div>
+          <div class="card">
+            <span class="label">Resultat attendu</span>
+            <p><span class="result-ok">/docs -> 200</span></p>
+            <p><span class="result-warn">/predict sans cle -> 401</span></p>
+            <p><span class="result-ok">/predict avec cle -> 200</span></p>
+            <p><code>/health</code> public : <span class="result-ok">200</span></p>
+          </div>
         </div>
-        <div class="card proof">
-          <p class="accent">Plan B verbal</p>
-          <p>
-            Si la demo live bloque, je m'appuie sur Swagger, les resultats de tests deja
-            verifies, et la sortie SQL deja rejouee localement.
-          </p>
+        <div class="grid two">
+          <div class="card proof">
+            <p class="accent">Plan B</p>
+            <p>
+              Si le Space ralentit, je repasse immediatement sur le local deja pret :
+              <code>http://127.0.0.1:8000/docs</code>.
+            </p>
+          </div>
+          <div class="card proof">
+            <p class="accent">Cle unique</p>
+            <p>
+              J'utilise la meme valeur de cle API partout pour supprimer toute
+              decision en live : <code>change-me-for-local-dev</code>.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -395,12 +450,13 @@ curl -sS -X POST http://127.0.0.1:8000/predict \
             <p>couverture globale actuelle</p>
           </div>
           <div class="card">
-            <div class="metric-small">3</div>
-            <p>types de preuves : unitaires, integration, erreurs</p>
+            <div class="metric-small">2</div>
+            <p>commandes a connaitre pendant la soutenance</p>
           </div>
         </div>
         <div class="grid two">
           <div class="card">
+            <span class="label">A expliquer</span>
             <p class="accent">Ce qui est teste</p>
             <ul>
               <li>chargement du modele</li>
@@ -411,9 +467,10 @@ curl -sS -X POST http://127.0.0.1:8000/predict \
             </ul>
           </div>
           <div class="card">
-            <p class="accent">Commandes qualite</p>
-            <pre>uv run pytest --cov=openclassrooms_projet5 \
-  --cov-report=term-missing --cov-report=xml
+            <span class="label">Commande a lancer</span>
+            <p class="accent">Bloc terminal qualite</p>
+            <pre>API_KEY='' uv run pytest --cov=openclassrooms_projet5 \
+  --cov-report=term-missing --cov-report=xml -q
 uv run ruff check .</pre>
           </div>
         </div>
@@ -421,9 +478,10 @@ uv run ruff check .</pre>
 
       <section class="slide">
         <span class="slide-id">Slide 8</span>
-        <h2>PostgreSQL, modele de donnees et exemples</h2>
+        <h2>PostgreSQL et preuve SQL locale</h2>
         <div class="grid two">
           <div class="card">
+            <span class="label">Preuve approfondie</span>
             <p class="accent">Table `prediction_logs`</p>
             <ul>
               <li><code>id</code> et <code>created_at</code></li>
@@ -433,7 +491,8 @@ uv run ruff check .</pre>
             </ul>
           </div>
           <div class="card">
-            <p class="accent">Artefacts BDD livres</p>
+            <span class="label">Artefacts livres</span>
+            <p class="accent">BDD et seed</p>
             <ul>
               <li><code>scripts/create_db.py</code></li>
               <li><code>scripts/seed_prediction_logs.py</code></li>
@@ -442,13 +501,34 @@ uv run ruff check .</pre>
             </ul>
           </div>
         </div>
-        <div class="card">
-          <p class="accent">Exemple de preuve SQL</p>
-          <pre>SELECT prediction_attrition, model_identifier,
-       request_payload->>'poste' AS poste
-FROM prediction_logs
-ORDER BY created_at DESC
-LIMIT 1;</pre>
+        <div class="grid two">
+          <div class="card">
+            <span class="label">Commande a lancer</span>
+            <p class="accent">Preuve SQL locale</p>
+            <pre>uv run python - <<'PY'
+from sqlalchemy import create_engine, text
+from openclassrooms_projet5.config import get_database_url
+engine = create_engine(get_database_url(), future=True)
+with engine.connect() as connection:
+    result = connection.execute(
+        text("SELECT prediction_attrition, model_identifier, "
+             "request_payload->>'poste' AS poste "
+             "FROM prediction_logs ORDER BY created_at DESC LIMIT 1")
+    )
+    print(dict(result.mappings().one()))
+engine.dispose()
+PY</pre>
+          </div>
+          <div class="card">
+            <span class="label">Resultat attendu</span>
+            <p><span class="result-ok">1</span> ligne recente avec :</p>
+            <ul>
+              <li><code>prediction_attrition</code></li>
+              <li><code>model_identifier</code></li>
+              <li><code>poste</code></li>
+            </ul>
+            <p>Cette partie reste locale car le Space public ne journalise pas dans PostgreSQL.</p>
+          </div>
         </div>
         <div class="card proof">
           <p class="accent">Choix technique important</p>
@@ -503,9 +583,9 @@ LIMIT 1;</pre>
           <div class="card">
             <p class="accent">Hugging Face Spaces</p>
             <ul>
-              <li>pipeline de deploiement prepare dans GitHub Actions</li>
-              <li>correctif runtime ajoute dans le depot</li>
-              <li>revalidation publique a rejouer apres redeploiement</li>
+              <li>Space public verifie le 29 mai 2026</li>
+              <li><code>/health</code> et <code>/docs</code> repondent <code>200</code></li>
+              <li><code>/predict</code> repond <code>401</code> sans cle et <code>200</code> avec la cle de demo</li>
             </ul>
           </div>
         </div>
