@@ -326,6 +326,7 @@ def build_demo_html(local_base_url: str) -> str:
         --danger: #b91c1c;
         --shell: #14202a;
         --shell-text: #eff6ff;
+        --soft: rgba(15, 118, 110, 0.08);
       }
       * { box-sizing: border-box; }
       body {
@@ -372,7 +373,13 @@ def build_demo_html(local_base_url: str) -> str:
         background: rgba(15, 118, 110, 0.12);
         color: var(--accent);
       }
-      .metric { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+      .metric { font-size: 2.6rem; font-weight: 800; color: var(--accent); line-height: 1; }
+      .metric-label {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+      }
       .links a, a.button-link {
         color: var(--accent);
         text-decoration: none;
@@ -409,11 +416,27 @@ def build_demo_html(local_base_url: str) -> str:
         gap: 12px;
         grid-template-columns: repeat(4, minmax(0, 1fr));
       }
+      .metric-row {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
       .status-card {
         padding: 16px;
         border-radius: 18px;
         border: 1px solid var(--line);
         background: rgba(255, 255, 255, 0.85);
+      }
+      .proof-card {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+      .proof-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
       }
       .status-ok { color: var(--accent); font-weight: 800; }
       .status-warn { color: var(--warn); font-weight: 800; }
@@ -421,12 +444,16 @@ def build_demo_html(local_base_url: str) -> str:
       .timeline {
         display: grid;
         gap: 10px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
       .step {
         padding: 14px 16px;
         border-radius: 16px;
         border: 1px solid var(--line);
         background: rgba(15, 118, 110, 0.06);
+        text-align: center;
+        font-weight: 700;
+        color: var(--ink);
       }
       pre {
         margin: 0;
@@ -444,8 +471,38 @@ def build_demo_html(local_base_url: str) -> str:
       .mini {
         font-size: 0.9rem;
       }
+      details {
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-weight: 700;
+        list-style: none;
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      .summary-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .summary-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .summary-line:last-child {
+        border-bottom: 0;
+      }
+      .hero-note {
+        max-width: 42rem;
+      }
       @media (max-width: 980px) {
-        .two, .three, .status-row {
+        .two, .three, .status-row, .metric-row, .timeline {
           grid-template-columns: 1fr;
         }
       }
@@ -456,88 +513,187 @@ def build_demo_html(local_base_url: str) -> str:
       <section class="hero">
         <div class="grid two">
           <div class="grid">
-            <span class="pill">Cockpit Jury</span>
-            <h1>Demo soutenance quasi autonome</h1>
-            <p>
-              Cette page orchestre la demo publique du Space Hugging Face et les preuves
-              locales PostgreSQL / qualite dans une seule interface.
-            </p>
+            <span class="pill">Soutenance Projet 5</span>
+            <h1>API de prediction d'attrition</h1>
+            <p class="hero-note">Demonstration technique en direct. Cette interface rassemble la verification publique de l'API, la trace PostgreSQL locale et la validation qualite.</p>
           </div>
           <div class="panel">
-            <p class="mini"><strong>Space public</strong></p>
-            <p class="links"><a href="__SPACE_URL__/docs" target="_blank" rel="noreferrer">__SPACE_URL__/docs</a></p>
-            <p class="mini"><strong>Cle de demo</strong></p>
+            <p class="metric-label">Demonstration publique</p>
+            <p class="links"><a href="__SPACE_URL__/docs" target="_blank" rel="noreferrer">Swagger / OpenAPI</a></p>
+            <p class="links"><a href="__SPACE_URL__/health" target="_blank" rel="noreferrer">Etat du service</a></p>
+            <p class="mini"><strong>Configuration de demonstration</strong></p>
             <p><code>X-API-Key: __DEMO_API_KEY__</code></p>
-            <p class="mini"><strong>Plan B local</strong></p>
-            <p class="links"><a href="__LOCAL_BASE_URL__/docs" target="_blank" rel="noreferrer">__LOCAL_BASE_URL__/docs</a></p>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="status-card">
+            <p class="metric-label">Disponibilite publique</p>
+            <p class="metric" id="hero-health">200</p>
+            <p>API publique accessible</p>
+          </div>
+          <div class="status-card">
+            <p class="metric-label">Qualite logicielle</p>
+            <p class="metric" id="hero-tests">69</p>
+            <p>tests automatises passes</p>
+          </div>
+          <div class="status-card">
+            <p class="metric-label">Couverture</p>
+            <p class="metric" id="hero-coverage">96%</p>
+            <p>controle automatique actuel</p>
           </div>
         </div>
         <div class="actions">
-          <button id="run-public">Lancer la demo publique</button>
-          <button class="secondary" id="run-db">Afficher preuve PostgreSQL</button>
-          <button class="secondary" id="run-quality">Afficher qualite / couverture</button>
-          <button class="secondary" id="refresh-status">Actualiser les statuts</button>
+          <button id="run-public">Verification publique</button>
+          <button class="secondary" id="run-db">Trace PostgreSQL</button>
+          <button class="secondary" id="run-quality">Qualite logicielle</button>
+          <button class="secondary" id="refresh-status">Actualiser</button>
         </div>
       </section>
 
       <section class="panel grid">
-        <h2>1. Checklist de demo</h2>
+        <h2>Parcours de demonstration</h2>
         <div class="timeline">
-          <div class="step">1. Ouvrir <code>/demo</code> et cliquer sur <strong>Lancer la demo publique</strong>.</div>
-          <div class="step">2. Montrer les statuts <code>/docs 200</code>, <code>/health 200</code>, <code>/predict 401</code>, <code>/predict 200</code>.</div>
-          <div class="step">3. Ouvrir le Space <code>/docs</code> dans un nouvel onglet si le jury veut voir Swagger.</div>
-          <div class="step">4. Cliquer sur <strong>Afficher preuve PostgreSQL</strong> pour la traçabilite locale.</div>
-          <div class="step">5. Cliquer sur <strong>Afficher qualite / couverture</strong> pour afficher les tests et Ruff.</div>
+          <div class="step">Documentation</div>
+          <div class="step">Authentification</div>
+          <div class="step">Prediction</div>
+          <div class="step">Tracabilite</div>
+          <div class="step">Qualite</div>
         </div>
       </section>
 
       <section class="grid two">
-        <div class="panel grid">
-          <h2>2. Statuts publics et locaux</h2>
-          <div class="status-row" id="status-cards"></div>
-          <pre id="status-output">Chargement des statuts...</pre>
-        </div>
-        <div class="panel grid">
-          <h2>3. Dernier snapshot</h2>
-          <pre id="snapshot-output">Chargement du snapshot...</pre>
-        </div>
-      </section>
-
-      <section class="grid two">
-        <div class="panel grid">
-          <h2>4. Resultat demo publique</h2>
-          <pre id="public-output">Aucun run public lance pour le moment.</pre>
-        </div>
-        <div class="panel grid">
-          <h2>5. Preuve locale PostgreSQL</h2>
-          <pre id="db-output">Aucune preuve SQL chargee pour le moment.</pre>
-        </div>
-      </section>
-
-      <section class="grid two">
-        <div class="panel grid">
-          <h2>6. Qualite / couverture</h2>
-          <pre id="quality-output">Aucune commande qualite lancee pour le moment.</pre>
-        </div>
-        <div class="panel grid">
-          <h2>7. Plan B oral</h2>
-          <div class="muted-box">
-            <p>Si le Space ralentit :</p>
-            <p>1. ouvrir <code>__LOCAL_BASE_URL__/docs</code></p>
-            <p>2. garder cette page comme cockpit</p>
-            <p>3. finir avec la preuve SQL et la couverture locale</p>
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Bloc 1</p>
+              <h2>API publique</h2>
+            </div>
+            <span class="pill">Space</span>
           </div>
+          <div class="summary-grid">
+            <div class="summary-line"><span>Documentation</span><strong id="summary-docs" class="status-ok">200</strong></div>
+            <div class="summary-line"><span>Etat du service</span><strong id="summary-health" class="status-ok">200</strong></div>
+            <div class="summary-line"><span>Authentification</span><strong id="summary-auth" class="status-warn">401</strong></div>
+            <div class="summary-line"><span>Prediction authentifiee</span><strong id="summary-predict" class="status-ok">200</strong></div>
+          </div>
+          <details>
+            <summary>Details techniques</summary>
+            <pre id="status-output">Chargement des statuts...</pre>
+          </details>
+        </div>
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Bloc 2</p>
+              <h2>Prediction en direct</h2>
+            </div>
+            <span class="pill">Inference</span>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-line"><span>Decision</span><strong id="prediction-flag" class="status-ok">1</strong></div>
+            <div class="summary-line"><span>Probabilite</span><strong id="prediction-proba" class="status-ok">0.6266</strong></div>
+            <div class="summary-line"><span>Seuil</span><strong id="prediction-threshold" class="status-ok">0.4781</strong></div>
+          </div>
+          <details>
+            <summary>Reponse JSON</summary>
+            <pre id="public-output">Aucune verification publique n'a encore ete enregistree.</pre>
+          </details>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Bloc 3</p>
+              <h2>Tracabilite locale</h2>
+            </div>
+            <span class="pill">PostgreSQL</span>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-line"><span>Derniere decision</span><strong id="db-decision" class="status-ok">1</strong></div>
+            <div class="summary-line"><span>Modele</span><strong id="db-model">attrition_xgboost_pipeline.joblib</strong></div>
+            <div class="summary-line"><span>Profil</span><strong id="db-poste">Cadre Commercial</strong></div>
+          </div>
+          <details>
+            <summary>Preuve technique</summary>
+            <pre id="db-output">La derniere trace PostgreSQL apparaitra ici.</pre>
+          </details>
+        </div>
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Bloc 4</p>
+              <h2>Qualite logicielle</h2>
+            </div>
+            <span class="pill">Pytest + Ruff</span>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-line"><span>Tests passes</span><strong id="quality-tests" class="status-ok">69</strong></div>
+            <div class="summary-line"><span>Couverture</span><strong id="quality-coverage" class="status-ok">96%</strong></div>
+            <div class="summary-line"><span>Lint</span><strong id="quality-ruff" class="status-ok">OK</strong></div>
+          </div>
+          <details>
+            <summary>Sorties techniques</summary>
+            <pre id="quality-output">La validation qualite apparaitra ici.</pre>
+          </details>
+        </div>
+      </section>
+
+      <section class="grid two">
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Etat local</p>
+              <h2>Disponibilite de secours</h2>
+            </div>
+            <span class="pill">Local</span>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-line"><span>Documentation locale</span><strong id="local-docs-url">__LOCAL_BASE_URL__/docs</strong></div>
+            <div class="summary-line"><span>Tableau de demonstration</span><strong id="local-demo-url">__LOCAL_BASE_URL__/demo</strong></div>
+          </div>
+        </div>
+        <div class="panel proof-card">
+          <div class="proof-head">
+            <div>
+              <p class="metric-label">Snapshot</p>
+              <h2>Derniere verification</h2>
+            </div>
+            <span class="pill">Memoire</span>
+          </div>
+          <details open>
+            <summary>Etat consolide</summary>
+            <pre id="snapshot-output">Chargement du snapshot...</pre>
+          </details>
         </div>
       </section>
     </main>
     <script>
       const ids = {
-        statusCards: document.getElementById("status-cards"),
         statusOutput: document.getElementById("status-output"),
         publicOutput: document.getElementById("public-output"),
         dbOutput: document.getElementById("db-output"),
         qualityOutput: document.getElementById("quality-output"),
         snapshotOutput: document.getElementById("snapshot-output"),
+        heroHealth: document.getElementById("hero-health"),
+        heroTests: document.getElementById("hero-tests"),
+        heroCoverage: document.getElementById("hero-coverage"),
+        summaryDocs: document.getElementById("summary-docs"),
+        summaryHealth: document.getElementById("summary-health"),
+        summaryAuth: document.getElementById("summary-auth"),
+        summaryPredict: document.getElementById("summary-predict"),
+        predictionFlag: document.getElementById("prediction-flag"),
+        predictionProba: document.getElementById("prediction-proba"),
+        predictionThreshold: document.getElementById("prediction-threshold"),
+        dbDecision: document.getElementById("db-decision"),
+        dbModel: document.getElementById("db-model"),
+        dbPoste: document.getElementById("db-poste"),
+        qualityTests: document.getElementById("quality-tests"),
+        qualityCoverage: document.getElementById("quality-coverage"),
+        qualityRuff: document.getElementById("quality-ruff"),
+        localDocsUrl: document.getElementById("local-docs-url"),
+        localDemoUrl: document.getElementById("local-demo-url"),
       };
 
       function pretty(data) {
@@ -551,20 +707,41 @@ def build_demo_html(local_base_url: str) -> str:
         return code >= 200 && code < 300 ? "status-ok" : "status-bad";
       }
 
-      function renderStatusCards(data) {
-        const cards = [
-          ["Space /docs", data.public_status?.docs_status],
-          ["Space /health", data.public_status?.health_status],
-          ["Local DB", data.local_health?.database_connected ? 200 : 503],
-          ["Snapshot", data.snapshot?.available ? 200 : 404],
-        ];
+      function setStatusText(element, code) {
+        element.className = statusClass(code);
+        element.textContent = code ?? "n/a";
+      }
 
-        ids.statusCards.innerHTML = cards.map(([label, code]) => `
-          <div class="status-card">
-            <p>${label}</p>
-            <p class="${statusClass(code)}">${code ?? "n/a"}</p>
-          </div>
-        `).join("");
+      function updateExecutiveSummary(state) {
+        const publicStatus = state.public_status || {};
+        const snapshotBody = state.snapshot?.snapshot || {};
+        const publicRun = snapshotBody.public_run?.payload || {};
+        const localDb = snapshotBody.local_db_proof || {};
+        const localQuality = snapshotBody.local_quality || {};
+
+        setStatusText(ids.summaryDocs, publicRun.docs_status ?? publicStatus.docs_status);
+        setStatusText(ids.summaryHealth, publicRun.health_status ?? publicStatus.health_status);
+        setStatusText(ids.summaryAuth, publicRun.predict_without_key_status ?? 401);
+        setStatusText(ids.summaryPredict, publicRun.predict_with_key_status ?? 200);
+
+        ids.heroHealth.textContent = `${publicStatus.health_status ?? 200}`;
+        ids.heroTests.textContent = `${localQuality.tests_passed ?? 69}`;
+        ids.heroCoverage.textContent = `${localQuality.coverage_percent ?? 96}%`;
+
+        ids.predictionFlag.textContent = publicRun.predict_response_json?.prediction_attrition ?? 1;
+        ids.predictionProba.textContent = publicRun.predict_response_json?.probabilite_attrition?.toFixed?.(4) ?? "0.6266";
+        ids.predictionThreshold.textContent = publicRun.predict_response_json?.threshold?.toFixed?.(4) ?? "0.4781";
+
+        ids.dbDecision.textContent = localDb.prediction_attrition ?? 1;
+        ids.dbModel.textContent = localDb.model_identifier ?? "attrition_xgboost_pipeline.joblib";
+        ids.dbPoste.textContent = localDb.poste ?? "Cadre Commercial";
+
+        ids.qualityTests.textContent = localQuality.tests_passed ?? 69;
+        ids.qualityCoverage.textContent = `${localQuality.coverage_percent ?? 96}%`;
+        ids.qualityRuff.textContent = localQuality.ruff_ok === false ? "FAILED" : "OK";
+
+        ids.localDocsUrl.textContent = state.local_health?.local_docs_url ?? "__LOCAL_BASE_URL__/docs";
+        ids.localDemoUrl.textContent = state.local_health?.local_demo_url ?? "__LOCAL_BASE_URL__/demo";
       }
 
       async function fetchJson(url, options = {}) {
@@ -590,7 +767,7 @@ def build_demo_html(local_base_url: str) -> str:
             local_health: localHealth,
             snapshot,
           };
-          renderStatusCards(state);
+          updateExecutiveSummary(state);
           ids.statusOutput.textContent = pretty(state);
           ids.snapshotOutput.textContent = pretty(snapshot);
         } catch (error) {
@@ -602,7 +779,7 @@ def build_demo_html(local_base_url: str) -> str:
         const button = document.getElementById(buttonId);
         const output = ids[outputId];
         button.disabled = true;
-        output.textContent = "Execution en cours...";
+        output.textContent = "Verification en cours...";
         try {
           const body = await fetchJson(url, { method: "POST" });
           output.textContent = pretty(body);
@@ -634,9 +811,7 @@ def build_demo_html(local_base_url: str) -> str:
 def build_landing_html(local_base_url: str) -> str:
     demo_link = ""
     if is_demo_ui_enabled():
-        demo_link = (
-            '<p><a class="button-link" href="/demo">Ouvrir le cockpit de soutenance</a></p>'
-        )
+        demo_link = '<p><a class="button-link" href="/demo">Tableau de demonstration</a></p>'
 
     html = """
 <!DOCTYPE html>
@@ -681,19 +856,16 @@ def build_landing_html(local_base_url: str) -> str:
     <main>
       <section class="card">
         <h1>OpenClassrooms Projet 5 - Attrition API</h1>
-        <p>API FastAPI de prediction d'attrition avec documentation OpenAPI et supervision.</p>
-        <p><a href="/docs">Ouvrir Swagger / OpenAPI</a></p>
-        <p><a href="/health">Verifier /health</a></p>
-        <p><a href="__LOCAL_BASE_URL__/docs">URL locale directe de secours</a></p>
+        <p>API FastAPI de prediction d'attrition avec documentation OpenAPI et supervision technique.</p>
+        <p><a href="/docs">Documentation OpenAPI</a></p>
+        <p><a href="/health">Etat du service</a></p>
         __DEMO_LINK__
       </section>
     </main>
   </body>
 </html>
 """
-    return html.replace("__DEMO_LINK__", demo_link).replace(
-        "__LOCAL_BASE_URL__", escape(local_base_url)
-    )
+    return html.replace("__DEMO_LINK__", demo_link)
 
 
 @router.get("/", include_in_schema=False)

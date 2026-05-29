@@ -36,7 +36,7 @@ def test_landing_page_is_available():
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Swagger / OpenAPI" in response.text
+    assert "Documentation OpenAPI" in response.text
 
 
 def test_demo_page_returns_404_when_demo_ui_is_disabled(monkeypatch):
@@ -59,7 +59,8 @@ def test_demo_page_renders_cockpit_when_enabled(monkeypatch):
     response = client.get("/demo")
 
     assert response.status_code == 200
-    assert "Cockpit Jury" in response.text
+    assert "Soutenance Projet 5" in response.text
+    assert "Verification publique" in response.text
     assert "https://example-demo.hf.space/docs" in response.text
     assert "demo-key" in response.text
 
@@ -106,12 +107,12 @@ def test_demo_local_quality_route_returns_payload(monkeypatch):
         "run_local_quality",
         lambda: {
             "pytest_exit_code": 0,
-            "tests_passed": 42,
+            "tests_passed": 69,
             "tests_failed": 0,
-            "coverage_percent": 97,
+            "coverage_percent": 96,
             "ruff_exit_code": 0,
             "ruff_ok": True,
-            "summary_text": "42 passed | 97% coverage | ruff OK",
+            "summary_text": "69 passed | 96% coverage | ruff OK",
             "timestamp": "2026-05-29T09:00:00+00:00",
         },
     )
@@ -120,7 +121,7 @@ def test_demo_local_quality_route_returns_payload(monkeypatch):
     response = client.post("/demo-api/local/quality")
 
     assert response.status_code == 200
-    assert response.json()["coverage_percent"] == 97
+    assert response.json()["coverage_percent"] == 96
 
 
 def test_demo_snapshot_route_returns_unavailable_when_missing(monkeypatch, tmp_path: Path):

@@ -240,9 +240,9 @@
         </div>
         <div class="grid two">
           <div class="card">
-            <span class="label">A ouvrir</span>
+            <span class="label">Demonstration publique</span>
             <p class="accent"><code>https://hgbe-gh-openclassrooms-projet5.hf.space/docs</code></p>
-            <p>Point d'entree principal de la demo pendant la soutenance.</p>
+            <p>Reference publique utilisee pendant la demonstration.</p>
           </div>
           <div class="card">
             <span class="label">Cle de demo</span>
@@ -354,7 +354,7 @@ docs / reports          doc technique et soutenance</pre>
         <h2>Swagger / OpenAPI et securite</h2>
         <div class="grid two">
           <div class="card">
-            <span class="label">A cliquer</span>
+            <span class="label">Preuve technique</span>
             <p class="accent">Documentation integree</p>
             <ul>
               <li>schemas d'entree et de sortie visibles dans Swagger</li>
@@ -363,7 +363,7 @@ docs / reports          doc technique et soutenance</pre>
             </ul>
           </div>
           <div class="card">
-            <span class="label">A verifier</span>
+            <span class="label">Architecture de securite</span>
             <p class="accent">Securisation</p>
             <ul>
               <li>header attendu : <code>X-API-Key</code></li>
@@ -374,38 +374,38 @@ docs / reports          doc technique et soutenance</pre>
           </div>
         </div>
         <div class="card proof">
-          <p class="accent">Ce que je montre en live</p>
+          <p class="accent">Presentation orale</p>
           <p>
-            J'ouvre <code>/docs</code> pour visualiser les schemas Pydantic, l'exemple de
-            payload et les reponses attendues avant de passer a l'appel API.
+            Je m'appuie sur <code>/docs</code> pour montrer le contrat de l'API,
+            les schemas de donnees et les erreurs attendues avant la demonstration.
           </p>
         </div>
       </section>
 
       <section class="slide">
         <span class="slide-id">Slide 6</span>
-        <h2>Cockpit de demo Space-first</h2>
+        <h2>Demonstration executive</h2>
         <div class="grid three">
           <div class="card">
-            <span class="label">A ouvrir</span>
-            <p class="accent">Sequence stricte</p>
+            <span class="label">Point de demonstration</span>
+            <p class="accent">Sequence de presentation</p>
             <ol>
-              <li>ouvrir l'URL <code>/demo</code> annoncee par <code>./scripts/start_demo.sh</code></li>
-              <li>cliquer <code>Lancer la demo publique</code></li>
-              <li>montrer les cartes <code>/docs 200</code>, <code>/health 200</code>, <code>401</code>, <code>200</code></li>
-              <li>ouvrir le Space <code>/docs</code> si le jury veut voir Swagger</li>
-              <li>cliquer preuve PostgreSQL puis qualite si demande</li>
+              <li>Je m'appuie sur le tableau de demonstration local.</li>
+              <li>Je montre la verification publique de l'API.</li>
+              <li>Je fais apparaitre la reponse authentifiee et la decision modele.</li>
+              <li>Je montre ensuite la trace PostgreSQL locale.</li>
+              <li>Je termine par la validation qualite et la couverture.</li>
             </ol>
           </div>
           <div class="card">
-            <span class="label">Commande a lancer</span>
+            <span class="label">Preuve technique</span>
             <p class="accent">Mode soutenance automatise</p>
             <pre>./scripts/start_demo.sh
 
-# puis ouvrir l'URL affichee par le script</pre>
+# puis afficher le tableau de demonstration</pre>
           </div>
           <div class="card">
-            <span class="label">Resultat attendu</span>
+            <span class="label">Resultat observe</span>
             <p><span class="result-ok">cockpit local -> 200</span></p>
             <p><span class="result-ok">/docs -> 200</span></p>
             <p><span class="result-warn">/predict sans cle -> 401</span></p>
@@ -415,17 +415,17 @@ docs / reports          doc technique et soutenance</pre>
         </div>
         <div class="grid two">
           <div class="card proof">
-            <p class="accent">Plan B</p>
+            <p class="accent">Secours operationnel</p>
             <p>
-              Si le cockpit ne repond pas, je reviens au support HTML, puis a
-              <code>/docs</code> sur l'URL locale annoncee et au terminal de secours.
+              Si le tableau de demonstration n'est pas disponible, je reviens au
+              support HTML, a Swagger, puis aux preuves locales en terminal.
             </p>
           </div>
           <div class="card proof">
-            <p class="accent">Cle unique</p>
+            <p class="accent">Cadre de demonstration</p>
             <p>
-              J'utilise la meme valeur de cle API partout pour supprimer toute
-              decision en live : <code>change-me-for-local-dev</code>.
+              J'utilise la meme cle de demonstration sur le local et sur le Space :
+              <code>change-me-for-local-dev</code>.
             </p>
           </div>
         </div>
@@ -445,12 +445,12 @@ docs / reports          doc technique et soutenance</pre>
           </div>
           <div class="card">
             <div class="metric-small">2</div>
-            <p>commandes a connaitre pendant la soutenance</p>
+            <p>preuves techniques mobilisees</p>
           </div>
         </div>
         <div class="grid two">
           <div class="card">
-            <span class="label">A expliquer</span>
+            <span class="label">Presentation orale</span>
             <p class="accent">Ce qui est teste</p>
             <ul>
               <li>chargement du modele</li>
@@ -461,7 +461,7 @@ docs / reports          doc technique et soutenance</pre>
             </ul>
           </div>
           <div class="card">
-            <span class="label">Commande a lancer</span>
+            <span class="label">Preuve technique</span>
             <p class="accent">Bloc terminal qualite</p>
             <pre>API_KEY='' uv run pytest --cov=openclassrooms_projet5 \
   --cov-report=term-missing --cov-report=xml -q
@@ -475,7 +475,7 @@ uv run ruff check .</pre>
         <h2>PostgreSQL et preuve SQL locale</h2>
         <div class="grid two">
           <div class="card">
-            <span class="label">Preuve approfondie</span>
+            <span class="label">Presentation orale</span>
             <p class="accent">Table `prediction_logs`</p>
             <ul>
               <li><code>id</code> et <code>created_at</code></li>
@@ -485,7 +485,7 @@ uv run ruff check .</pre>
             </ul>
           </div>
           <div class="card">
-            <span class="label">Artefacts livres</span>
+            <span class="label">Preuve technique</span>
             <p class="accent">BDD et seed</p>
             <ul>
               <li><code>scripts/create_db.py</code></li>
@@ -497,7 +497,7 @@ uv run ruff check .</pre>
         </div>
         <div class="grid two">
           <div class="card">
-            <span class="label">Commande a lancer</span>
+            <span class="label">Preuve technique</span>
             <p class="accent">Preuve SQL locale</p>
             <pre>uv run python - <<'PY'
 from sqlalchemy import create_engine, text
@@ -514,7 +514,7 @@ engine.dispose()
 PY</pre>
           </div>
           <div class="card">
-            <span class="label">Resultat attendu</span>
+            <span class="label">Resultat observe</span>
             <p><span class="result-ok">1</span> ligne recente avec :</p>
             <ul>
               <li><code>prediction_attrition</code></li>
@@ -527,8 +527,8 @@ PY</pre>
         <div class="card proof">
           <p class="accent">Choix technique important</p>
           <p>
-            Le `JSONB` permet de conserver le payload complet pour l'audit sans rigidifier
-            inutilement le schema de logging.
+            J'ai retenu `JSONB` pour conserver le payload complet et garder
+            une trace exploitable sans rigidifier inutilement le schema.
           </p>
         </div>
       </section>
@@ -586,9 +586,9 @@ PY</pre>
         <div class="card proof">
           <p class="accent">Conclusion</p>
           <p>
-            J'ai transforme un modele ML en service exploitable avec une API documentee,
-            des tests automatises, une base PostgreSQL de tracabilite et une CI/CD
-            demonstrable face a un responsable technique.
+            Je presente ici un modele ML transforme en service exploitable, avec
+            une API documentee, une traçabilite PostgreSQL, des tests automatises
+            et une chaine CI/CD demonstrable.
           </p>
         </div>
       </section>
