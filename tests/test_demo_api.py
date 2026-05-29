@@ -56,7 +56,7 @@ def test_demo_page_renders_cockpit_when_enabled(monkeypatch):
         "get_space_runtime_url",
         lambda: "https://example-demo.hf.space",
     )
-    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "demo-key")
+    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "cle-test")
 
     response = client.get("/demo")
 
@@ -65,7 +65,7 @@ def test_demo_page_renders_cockpit_when_enabled(monkeypatch):
     assert "Tout actualiser" in response.text
     assert "/demo-api/presentation" in response.text
     assert "https://example-demo.hf.space/docs" in response.text
-    assert "demo-key" in response.text
+    assert "cle-test" in response.text
 
 
 def test_demo_presentation_route_serves_html(monkeypatch):
@@ -392,7 +392,7 @@ def test_run_public_demo_handles_success(monkeypatch):
 
     monkeypatch.setattr(demo_routes.httpx, "Client", lambda **kwargs: FakeClient())
     monkeypatch.setattr(demo_routes, "get_space_runtime_url", lambda: "https://demo.hf.space")
-    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "demo-key")
+    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "cle-test")
 
     payload = run_public_demo()
 
@@ -530,7 +530,7 @@ def test_snapshot_helpers_roundtrip(monkeypatch, tmp_path: Path):
     snapshot_path = tmp_path / "demo_snapshot.json"
     monkeypatch.setattr(demo_routes, "_snapshot_path", lambda: snapshot_path)
     monkeypatch.setattr(demo_routes, "get_space_runtime_url", lambda: "https://demo.hf.space")
-    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "demo-key")
+    monkeypatch.setattr(demo_routes, "get_demo_api_key", lambda: "cle-test")
 
     saved_path = save_demo_snapshot({"hello": "world"})
     assert saved_path == snapshot_path
@@ -538,7 +538,7 @@ def test_snapshot_helpers_roundtrip(monkeypatch, tmp_path: Path):
 
     updated = update_demo_snapshot("public_status", {"docs_status": 200})
     assert updated["space_url"] == "https://demo.hf.space"
-    assert updated["demo_api_key"] == "demo-key"
+    assert updated["demo_api_key"] == "cle-test"
     assert updated["public_status"] == {"docs_status": 200}
 
 

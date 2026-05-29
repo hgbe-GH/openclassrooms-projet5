@@ -30,7 +30,7 @@ from openclassrooms_projet5.db.session import (
 
 DEMO_PUBLIC_SPACE_URL = "https://hgbe-gh-openclassrooms-projet5.hf.space"
 DEMO_GITHUB_REPOSITORY_FALLBACK = "hgbe-GH/openclassrooms-projet5"
-DEMO_API_KEY_FALLBACK = "change-me-for-local-dev"
+DEMO_API_KEY_FALLBACK = "cle-test"
 DEMO_PUBLIC_TIMEOUT_SECONDS = 20.0
 DEMO_QUALITY_TIMEOUT_SECONDS = 240
 DEMO_REMOTE_TIMEOUT_SECONDS = 20.0

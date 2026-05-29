@@ -59,7 +59,7 @@ References utiles :
 - tableau de bord local : URL annoncee par `./scripts/start_demo.sh`
 - Space public : `https://hgbe-gh-openclassrooms-projet5.hf.space`
 - Swagger / OpenAPI : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs`
-- cle de demo : `X-API-Key: change-me-for-local-dev`
+- cle de demo : `X-API-Key: cle-test`
 
 Lancement recommande :
 
@@ -78,7 +78,7 @@ Etat verifie le `29 mai 2026` :
 - `GET /health` : `200`
 - `GET /docs` : `200`
 - `POST /predict` sans cle : `401`
-- `POST /predict` avec `X-API-Key: change-me-for-local-dev` : `200`
+- `POST /predict` avec `X-API-Key: cle-test` : `200`
 
 Si le Space ralentit, le tableau de bord local et `/docs` restent disponibles en secours.
 
@@ -175,7 +175,7 @@ Appel authentifie :
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: change-me-for-local-dev" \
+  -H "X-API-Key: cle-test" \
   -d @references/predict_payload_example.json
 ```
 
@@ -347,7 +347,7 @@ Etat de verification date du `29 mai 2026` :
 - runtime public : `https://hgbe-gh-openclassrooms-projet5.hf.space/health` repond `200`
 - documentation publique : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs` repond `200`
 - `POST /predict` sans cle repond `401`
-- `POST /predict` avec `X-API-Key: change-me-for-local-dev` repond `200`
+- `POST /predict` avec `X-API-Key: cle-test` repond `200`
 
 Choix de demonstration :
 
