@@ -212,3 +212,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Presentation generation scratch
+outputs/
+reports/artifact-build-manifest.json
+reports/.~lock*.pptx#

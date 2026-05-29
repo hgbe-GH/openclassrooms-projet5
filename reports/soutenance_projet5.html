@@ -206,9 +206,29 @@
         font-weight: 700;
       }
 
+      .timeline-strip {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+      }
+
+      .timeline-box {
+        padding: 14px 12px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: rgba(15, 118, 110, 0.05);
+        text-align: center;
+      }
+
+      .timeline-box strong {
+        display: block;
+        color: var(--ink);
+      }
+
       @media (max-width: 900px) {
         .two,
-        .three {
+        .three,
+        .timeline-strip {
           grid-template-columns: 1fr;
         }
       }
@@ -248,6 +268,19 @@
             <span class="label">Cle de demo</span>
             <p class="accent"><code>X-API-Key: change-me-for-local-dev</code></p>
             <p>Meme cle en local et sur le Space pour eviter tout changement en live.</p>
+          </div>
+        </div>
+        <div class="card">
+          <span class="label">Trame 15 minutes</span>
+          <div class="timeline-strip">
+            <div class="timeline-box"><strong>1 min</strong><span>contexte</span></div>
+            <div class="timeline-box"><strong>2 min</strong><span>depot Git</span></div>
+            <div class="timeline-box"><strong>2 min</strong><span>CI/CD</span></div>
+            <div class="timeline-box"><strong>3 min</strong><span>API</span></div>
+            <div class="timeline-box"><strong>2 min</strong><span>demo</span></div>
+            <div class="timeline-box"><strong>2 min</strong><span>tests</span></div>
+            <div class="timeline-box"><strong>2 min</strong><span>BDD</span></div>
+            <div class="timeline-box"><strong>1 min</strong><span>conclusion</span></div>
           </div>
         </div>
       </section>
