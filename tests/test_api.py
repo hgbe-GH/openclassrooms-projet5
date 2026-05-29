@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+import pytest
 
 import openclassrooms_projet5.api.main as app_main
 import openclassrooms_projet5.api.security as api_security
@@ -38,6 +39,11 @@ VALID_PAYLOAD = {
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def disable_authentication_by_default(monkeypatch):
+    monkeypatch.delenv("API_KEY", raising=False)
 
 
 def test_model_loads():
@@ -224,8 +230,7 @@ def test_predict_rejects_missing_required_field_without_logging(monkeypatch):
 
 
 def test_predict_requires_api_key_when_authentication_is_enabled(monkeypatch):
-    monkeypatch.setattr(api_security, "is_authentication_enabled", lambda: True)
-    monkeypatch.setattr(api_security, "get_api_key", lambda: "test-api-key")
+    monkeypatch.setenv("API_KEY", "test-api-key")
     monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
     monkeypatch.setattr(app_main, "log_prediction", lambda payload, prediction: False)
 

@@ -49,6 +49,11 @@ pytestmark = pytest.mark.skipif(
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def disable_authentication_for_integration_tests(monkeypatch):
+    monkeypatch.delenv("API_KEY", raising=False)
+
+
 def _execute_scalar(statement: str) -> int:
     session_factory = get_session_factory()
     assert session_factory is not None

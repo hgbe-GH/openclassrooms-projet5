@@ -6,13 +6,16 @@
     <title>Soutenance Projet 5 - Attrition API</title>
     <style>
       :root {
-        --bg: #f7f3ea;
-        --surface: rgba(255, 252, 245, 0.92);
-        --ink: #1f2430;
-        --muted: #596273;
-        --line: rgba(31, 36, 48, 0.1);
+        --bg: #f6f1e7;
+        --surface: rgba(255, 252, 245, 0.95);
+        --ink: #1e2430;
+        --muted: #5e6877;
+        --line: rgba(30, 36, 48, 0.12);
         --accent: #0f766e;
         --accent-2: #d97706;
+        --accent-3: #7c3aed;
+        --shell: #16202a;
+        --shell-text: #f5f0e7;
       }
 
       * {
@@ -24,8 +27,8 @@
         color: var(--ink);
         font-family: "Segoe UI", "Helvetica Neue", sans-serif;
         background:
-          radial-gradient(circle at top right, rgba(217, 119, 6, 0.16), transparent 20rem),
-          radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.16), transparent 22rem),
+          radial-gradient(circle at top right, rgba(217, 119, 6, 0.14), transparent 20rem),
+          radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.14), transparent 22rem),
           var(--bg);
       }
 
@@ -42,7 +45,7 @@
         border-radius: 28px;
         border: 1px solid var(--line);
         background: var(--surface);
-        box-shadow: 0 28px 70px rgba(31, 36, 48, 0.08);
+        box-shadow: 0 28px 70px rgba(30, 36, 48, 0.08);
         display: grid;
         gap: 24px;
         align-content: start;
@@ -67,11 +70,11 @@
       }
 
       h1 {
-        font-size: clamp(2.2rem, 4vw, 4.3rem);
+        font-size: clamp(2.3rem, 4vw, 4.4rem);
       }
 
       h2 {
-        font-size: clamp(1.7rem, 3vw, 2.6rem);
+        font-size: clamp(1.8rem, 3vw, 2.7rem);
       }
 
       p,
@@ -79,7 +82,13 @@
       td,
       th {
         color: var(--muted);
-        line-height: 1.65;
+        line-height: 1.6;
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 20px;
       }
 
       .grid {
@@ -99,7 +108,7 @@
         padding: 22px;
         border-radius: 20px;
         border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.74);
+        background: rgba(255, 255, 255, 0.78);
       }
 
       .accent {
@@ -113,6 +122,12 @@
         color: var(--accent);
       }
 
+      .metric-small {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--accent-3);
+      }
+
       .pipeline {
         display: grid;
         gap: 12px;
@@ -123,6 +138,11 @@
         border-radius: 18px;
         border: 1px solid var(--line);
         background: rgba(15, 118, 110, 0.06);
+      }
+
+      .proof {
+        border-left: 4px solid var(--accent-2);
+        padding-left: 14px;
       }
 
       table {
@@ -147,14 +167,20 @@
         margin: 0;
         padding: 18px;
         border-radius: 18px;
-        background: #16202a;
-        color: #f5f0e7;
+        background: var(--shell);
+        color: var(--shell-text);
         overflow: auto;
+        font-size: 0.94rem;
       }
 
-      .proof {
-        border-left: 4px solid var(--accent-2);
-        padding-left: 14px;
+      .tag {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, 0.1);
+        color: var(--accent-3);
+        font-size: 0.8rem;
+        font-weight: 700;
       }
 
       @media (max-width: 900px) {
@@ -171,106 +197,243 @@
         <span class="slide-id">Slide 1</span>
         <h1>Deployez un modele de Machine Learning</h1>
         <p>
-          Projet 5 OpenClassrooms. Objectif : rendre un modele de prediction d'attrition
-          exploitable via une API FastAPI testee, securisee, documentee et preparer son
-          deploiement sur Hugging Face Spaces.
+          Projet 5 OpenClassrooms. Mon objectif a ete de transformer un modele
+          d'attrition en service exploitable via une API FastAPI testee, securisee,
+          documentee et connectee a PostgreSQL.
         </p>
         <div class="grid three">
           <div class="card">
             <div class="metric">1</div>
-            <p>modele ML expose par API</p>
+            <p>API FastAPI documentee pour exposer le modele</p>
           </div>
           <div class="card">
             <div class="metric">1</div>
-            <p>chaine PostgreSQL pour tracer les predictions</p>
+            <p>base PostgreSQL pour tracer les predictions</p>
           </div>
           <div class="card">
             <div class="metric">1</div>
-            <p>pipeline CI/CD versionne pour tester et deployer</p>
+            <p>pipeline CI/CD pour tester et deployer</p>
           </div>
         </div>
       </section>
 
       <section class="slide">
         <span class="slide-id">Slide 2</span>
-        <h2>Besoin metier et reponse technique</h2>
+        <h2>Livrables et structure du depot Git</h2>
         <div class="grid two">
           <div class="card">
-            <p class="accent">Besoin</p>
-            <p>
-              Futurisys souhaite rendre son modele d'attrition utilisable en production,
-              avec une API fiable, des tests, une authentification simple et une base de
-              donnees exploitable pour l'audit.
-            </p>
-          </div>
-          <div class="card">
-            <p class="accent">Reponse</p>
-            <p>
-              Une application FastAPI qui valide le payload, appelle l'artefact modele,
-              journalise la prediction dans PostgreSQL et expose sa documentation via Swagger.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="slide">
-        <span class="slide-id">Slide 3</span>
-        <h2>Architecture de la solution</h2>
-        <div class="pipeline">
-          <div class="step">1. Client -&gt; <code>POST /predict</code> ou <code>GET /health</code></div>
-          <div class="step">2. Validation Pydantic du payload et des bornes</div>
-          <div class="step">3. Preprocessing et chargement de l'artefact XGBoost</div>
-          <div class="step">4. Calcul de <code>probabilite_attrition</code>, <code>prediction_attrition</code>, <code>threshold</code></div>
-          <div class="step">5. Journalisation dans PostgreSQL si la base est configuree</div>
-          <div class="step">6. Supervision, tests, CI/CD et deploiement Space Docker</div>
-        </div>
-      </section>
-
-      <section class="slide">
-        <span class="slide-id">Slide 4</span>
-        <h2>API, Swagger et securite</h2>
-        <div class="grid two">
-          <div class="card">
-            <p class="accent">Endpoints</p>
+            <p class="accent">Livrables attendus</p>
             <ul>
-              <li><code>GET /health</code> : etat du modele, de la DB et de l'auth.</li>
-              <li><code>POST /predict</code> : prediction et persistence.</li>
-              <li><code>GET /docs</code> : Swagger / OpenAPI.</li>
+              <li>depot Git structure avec documentation</li>
+              <li>API FastAPI avec Swagger / OpenAPI</li>
+              <li>tests Pytest et couverture</li>
+              <li>base PostgreSQL et exemples d'entrees</li>
+              <li>pipeline GitHub Actions et deploiement prepare</li>
             </ul>
           </div>
           <div class="card">
-            <p class="accent">Securisation</p>
-            <ul>
-              <li>Header attendu : <code>X-API-Key</code>.</li>
-              <li>Route protegee : <code>POST /predict</code>.</li>
-              <li>Reponse attendue si cle invalide : <code>401</code>.</li>
-              <li>Erreurs documentees : <code>401</code>, <code>422</code>, <code>503</code>.</li>
-            </ul>
+            <p class="accent">Arborescence cle</p>
+            <pre>.github/workflows  CI/CD
+openclassrooms_projet5  API + modele + DB
+scripts                 creation DB, seed, runtime
+tests                   unitaires et integration
+sql / alembic           schema et migrations
+docs / reports          doc technique et soutenance</pre>
           </div>
         </div>
         <div class="card proof">
-          <p class="accent">Preuve a montrer</p>
+          <p class="accent">Message a faire passer</p>
           <p>
-            Ouvrir <code>/docs</code> pendant la demo pour afficher les schemas Pydantic,
-            les exemples de payload et les erreurs documentees.
+            Le depot n'est pas un simple code source : il regroupe les artefacts
+            necessaires pour installer, tester, documenter, demontrer et deployer le projet.
           </p>
         </div>
       </section>
 
       <section class="slide">
-        <span class="slide-id">Slide 5</span>
-        <h2>Base PostgreSQL et tracabilite</h2>
+        <span class="slide-id">Slide 3</span>
+        <h2>Pipeline CI/CD</h2>
         <div class="grid two">
           <div class="card">
-            <p class="accent">Table principale</p>
+            <p class="accent">Job qualite</p>
             <ul>
-              <li><code>prediction_logs</code></li>
-              <li><code>request_payload</code> en <code>JSONB</code></li>
-              <li>score, decision binaire, seuil et identifiant du modele</li>
+              <li>checkout du depot</li>
+              <li>installation de Python 3.12 et `uv`</li>
+              <li>demarrage d'un service PostgreSQL</li>
+              <li>restauration du modele chiffre</li>
+              <li>migrations, tests et lint</li>
             </ul>
           </div>
           <div class="card">
-            <p class="accent">Livrables BDD</p>
+            <p class="accent">Job deploiement</p>
+            <ul>
+              <li>declenchement sur tag `v*`</li>
+              <li>preparation d'un export propre du depot</li>
+              <li>upload vers Hugging Face Spaces</li>
+              <li>secrets requis : `HF_TOKEN`, `MODEL_ARTIFACT_PASSPHRASE`</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Preuve a commenter</p>
+          <p>
+            Le fichier <code>.github/workflows/ci.yml</code> automatise la qualite et
+            montre une separation claire entre validation technique et deploiement.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 4</span>
+        <h2>API FastAPI et architecture applicative</h2>
+        <div class="pipeline">
+          <div class="step">1. Client -&gt; <code>POST /predict</code> ou <code>GET /health</code></div>
+          <div class="step">2. Validation Pydantic du payload et des bornes</div>
+          <div class="step">3. Chargement du modele XGBoost et preprocessing</div>
+          <div class="step">4. Calcul de <code>probabilite_attrition</code>, <code>prediction_attrition</code>, <code>threshold</code></div>
+          <div class="step">5. Journalisation dans PostgreSQL si la base est configuree</div>
+          <div class="step">6. Retour JSON et supervision via <code>/health</code></div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Endpoints livres</p>
+            <ul>
+              <li><code>GET /health</code></li>
+              <li><code>POST /predict</code></li>
+              <li><code>GET /docs</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Choix d'architecture</p>
+            <ul>
+              <li>separation API / modele / DB</li>
+              <li>validation avant inference</li>
+              <li>persistance obligatoire si DB configuree</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 5</span>
+        <h2>Swagger / OpenAPI et securite</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Documentation integree</p>
+            <ul>
+              <li>schemas d'entree et de sortie visibles dans Swagger</li>
+              <li>exemples de payload et de reponse</li>
+              <li>erreurs documentees : <code>401</code>, <code>422</code>, <code>503</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Securisation</p>
+            <ul>
+              <li>header attendu : <code>X-API-Key</code></li>
+              <li>route protegee : <code>POST /predict</code></li>
+              <li><code>/health</code> reste public pour la supervision</li>
+              <li>sans cle valide : retour <code>401</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Ce que je montre en live</p>
+          <p>
+            J'ouvre <code>/docs</code> pour visualiser les schemas Pydantic, l'exemple de
+            payload et les reponses attendues avant de passer a l'appel API.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 6</span>
+        <h2>Demo live en 2 a 3 minutes</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Sequence stricte</p>
+            <ol>
+              <li>ouvrir <code>GET /docs</code></li>
+              <li>montrer le schema et les erreurs documentees</li>
+              <li>lancer <code>POST /predict</code> sans cle -&gt; <code>401</code></li>
+              <li>lancer <code>POST /predict</code> avec la cle -&gt; <code>200</code></li>
+              <li>faire un <code>SELECT</code> sur <code>prediction_logs</code></li>
+            </ol>
+          </div>
+          <div class="card">
+            <p class="accent">Commandes a preparer</p>
+            <pre>curl -sS http://127.0.0.1:8000/health
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  -X POST http://127.0.0.1:8000/predict \
+  -H 'Content-Type: application/json' \
+  -d @references/predict_payload_example.json
+
+curl -sS -X POST http://127.0.0.1:8000/predict \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me-for-local-dev' \
+  -d @references/predict_payload_example.json</pre>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Plan B verbal</p>
+          <p>
+            Si la demo live bloque, je m'appuie sur Swagger, les resultats de tests deja
+            verifies, et la sortie SQL deja rejouee localement.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 7</span>
+        <h2>Tests Pytest et couverture</h2>
+        <div class="grid three">
+          <div class="card">
+            <div class="metric-small">42</div>
+            <p>tests verifies localement</p>
+          </div>
+          <div class="card">
+            <div class="metric-small">98%</div>
+            <p>couverture globale actuelle</p>
+          </div>
+          <div class="card">
+            <div class="metric-small">3</div>
+            <p>types de preuves : unitaires, integration, erreurs</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Ce qui est teste</p>
+            <ul>
+              <li>chargement du modele</li>
+              <li><code>/health</code> en mode normal et degrade</li>
+              <li><code>/predict</code> succes, validation, auth, erreurs DB</li>
+              <li>configuration et preprocessing</li>
+              <li>integration PostgreSQL et seed</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Commandes qualite</p>
+            <pre>uv run pytest --cov=openclassrooms_projet5 \
+  --cov-report=term-missing --cov-report=xml
+uv run ruff check .</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 8</span>
+        <h2>PostgreSQL, modele de donnees et exemples</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Table `prediction_logs`</p>
+            <ul>
+              <li><code>id</code> et <code>created_at</code></li>
+              <li><code>request_payload</code> en <code>JSONB</code></li>
+              <li>score, decision binaire, seuil</li>
+              <li><code>model_identifier</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Artefacts BDD livres</p>
             <ul>
               <li><code>scripts/create_db.py</code></li>
               <li><code>scripts/seed_prediction_logs.py</code></li>
@@ -279,119 +442,80 @@
             </ul>
           </div>
         </div>
-        <div class="card proof">
-          <p class="accent">Preuve a montrer</p>
-          <p>
-            Executer un <code>SELECT</code> sur <code>prediction_logs</code> apres un appel
-            <code>/predict</code> pour prouver la persistance.
-          </p>
-        </div>
-      </section>
-
-      <section class="slide">
-        <span class="slide-id">Slide 6</span>
-        <h2>Tests, couverture et qualite</h2>
-        <div class="grid two">
-          <div class="card">
-            <p class="accent">Cas verifies</p>
-            <ul>
-              <li>chargement modele</li>
-              <li><code>/health</code> en mode normal et degrade</li>
-              <li><code>/predict</code> succes et erreurs</li>
-              <li>authentification par cle API</li>
-              <li>integration PostgreSQL et seed</li>
-            </ul>
-          </div>
-          <div class="card">
-            <p class="accent">Commandes</p>
-            <pre>uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
-uv run ruff check .</pre>
-          </div>
-        </div>
-      </section>
-
-      <section class="slide">
-        <span class="slide-id">Slide 7</span>
-        <h2>CI/CD et deploiement</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Bloc</th>
-              <th>Preuve</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Tests et lint</td>
-              <td><code>.github/workflows/ci.yml</code> execute Pytest, couverture et Ruff.</td>
-            </tr>
-            <tr>
-              <td>Base de donnees</td>
-              <td>Service PostgreSQL GitHub Actions + migrations Alembic.</td>
-            </tr>
-            <tr>
-              <td>Modele chiffre</td>
-              <td>Restauration via <code>MODEL_ARTIFACT_PASSPHRASE</code>.</td>
-            </tr>
-            <tr>
-              <td>Deploiement</td>
-              <td>Envoi vers Hugging Face Spaces sur tag <code>v*</code>.</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="slide">
-        <span class="slide-id">Slide 8</span>
-        <h2>Etat du Space et remediation</h2>
-        <div class="grid two">
-          <div class="card">
-            <p class="accent">Constat au 29 mai 2026</p>
-            <ul>
-              <li>UI Space : <code>200</code></li>
-              <li>Runtime <code>/health</code> : <code>500</code></li>
-            </ul>
-          </div>
-          <div class="card">
-            <p class="accent">Correctif apporte dans le depot</p>
-            <ul>
-              <li>script d'entree rendu compatible <code>sh</code></li>
-              <li>bit executable force dans le <code>Dockerfile</code></li>
-              <li>README mis a jour sans affirmation non verifiee</li>
-            </ul>
-          </div>
+        <div class="card">
+          <p class="accent">Exemple de preuve SQL</p>
+          <pre>SELECT prediction_attrition, model_identifier,
+       request_payload->>'poste' AS poste
+FROM prediction_logs
+ORDER BY created_at DESC
+LIMIT 1;</pre>
         </div>
         <div class="card proof">
-          <p class="accent">Point a assumer a l'oral</p>
+          <p class="accent">Choix technique important</p>
           <p>
-            Le depot contient le correctif. La validation publique du Space doit etre relancee
-            apres push et redeploiement.
+            Le `JSONB` permet de conserver le payload complet pour l'audit sans rigidifier
+            inutilement le schema de logging.
           </p>
         </div>
       </section>
 
       <section class="slide">
         <span class="slide-id">Slide 9</span>
-        <h2>Demo courte et conclusion</h2>
+        <h2>Cas d'usage metier et resultats</h2>
         <div class="grid two">
           <div class="card">
-            <p class="accent">Scenario de demo en 3 minutes</p>
-            <ol>
-              <li>Lancer l'API localement.</li>
-              <li>Montrer Swagger sur <code>/docs</code>.</li>
-              <li>Appeler <code>/predict</code> avec le payload versionne.</li>
-              <li>Verifier la ligne ajoutee dans PostgreSQL.</li>
-              <li>Montrer les tests et le workflow CI/CD.</li>
-            </ol>
-          </div>
-          <div class="card">
-            <p class="accent">Limites et suites</p>
+            <p class="accent">Usages couverts</p>
             <ul>
-              <li>authentification simple par cle API, pas d'IAM complet</li>
-              <li>pas de dashboard BI dans ce depot</li>
-              <li>revalidation publique du Space apres redeploiement</li>
+              <li>audit d'un appel API et de sa sortie</li>
+              <li>suivi du volume de predictions</li>
+              <li>distribution des scores d'attrition</li>
+              <li>comparaison entre artefacts modele</li>
             </ul>
           </div>
+          <div class="card">
+            <p class="accent">Resultat d'exemple</p>
+            <pre>{
+  "probabilite_attrition": 0.6265,
+  "prediction_attrition": 1,
+  "threshold": 0.4781
+}</pre>
+            <p><span class="tag">Message metier</span></p>
+            <p>
+              Le projet ne livre pas un dashboard final, mais il fournit une base de
+              donnees exploitable pour le reporting et l'audit.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 10</span>
+        <h2>Limites, point de vigilance et conclusion</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Limites assumees</p>
+            <ul>
+              <li>authentification simple par cle API</li>
+              <li>pas de dashboard BI dans ce depot</li>
+              <li>pas de gestion IAM complete</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Hugging Face Spaces</p>
+            <ul>
+              <li>pipeline de deploiement prepare dans GitHub Actions</li>
+              <li>correctif runtime ajoute dans le depot</li>
+              <li>revalidation publique a rejouer apres redeploiement</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Conclusion</p>
+          <p>
+            J'ai transforme un modele ML en service exploitable avec une API documentee,
+            des tests automatises, une base PostgreSQL de tracabilite et une CI/CD
+            demonstrable face a un responsable technique.
+          </p>
         </div>
       </section>
     </main>
