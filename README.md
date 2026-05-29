@@ -1,6 +1,5 @@
 ---
 title: OpenClassrooms Projet 5 - Attrition API
-emoji: 🧠
 colorFrom: red
 colorTo: blue
 sdk: docker
