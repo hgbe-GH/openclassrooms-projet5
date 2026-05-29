@@ -9,20 +9,22 @@ from fastapi.testclient import TestClient
 import httpx
 import pytest
 
+import openclassrooms_projet5.api.demo as demo_routes
 from openclassrooms_projet5.api.demo import (
     _parse_quality_metrics,
-    get_public_status,
+    build_full_refresh_payload,
+    get_github_status,
+    get_huggingface_status,
     get_local_db_proof,
     get_local_demo_health,
+    get_public_status,
     load_demo_snapshot,
     run_local_quality,
     run_public_demo,
     save_demo_snapshot,
     update_demo_snapshot,
 )
-import openclassrooms_projet5.api.demo as demo_routes
 from openclassrooms_projet5.api.main import app
-
 
 client = TestClient(app)
 
@@ -59,10 +61,21 @@ def test_demo_page_renders_cockpit_when_enabled(monkeypatch):
     response = client.get("/demo")
 
     assert response.status_code == 200
-    assert "Soutenance Projet 5" in response.text
-    assert "Verification publique" in response.text
+    assert "Dashboard de soutenance" in response.text
+    assert "Tout actualiser" in response.text
+    assert "/demo-api/presentation" in response.text
     assert "https://example-demo.hf.space/docs" in response.text
     assert "demo-key" in response.text
+
+
+def test_demo_presentation_route_serves_html(monkeypatch):
+    monkeypatch.setattr(demo_routes, "is_demo_ui_enabled", lambda: True)
+    monkeypatch.setattr(demo_routes, "get_presentation_html", lambda: "<html>presentation</html>")
+
+    response = client.get("/demo-api/presentation")
+
+    assert response.status_code == 200
+    assert "presentation" in response.text
 
 
 def test_demo_public_status_route_returns_payload(monkeypatch):
@@ -107,12 +120,12 @@ def test_demo_local_quality_route_returns_payload(monkeypatch):
         "run_local_quality",
         lambda: {
             "pytest_exit_code": 0,
-            "tests_passed": 69,
+            "tests_passed": 76,
             "tests_failed": 0,
-            "coverage_percent": 96,
+            "coverage_percent": 94,
             "ruff_exit_code": 0,
             "ruff_ok": True,
-            "summary_text": "69 passed | 96% coverage | ruff OK",
+            "summary_text": "76 passed | 94% coverage | ruff OK",
             "timestamp": "2026-05-29T09:00:00+00:00",
         },
     )
@@ -121,7 +134,7 @@ def test_demo_local_quality_route_returns_payload(monkeypatch):
     response = client.post("/demo-api/local/quality")
 
     assert response.status_code == 200
-    assert response.json()["coverage_percent"] == 96
+    assert response.json()["coverage_percent"] == 94
 
 
 def test_demo_snapshot_route_returns_unavailable_when_missing(monkeypatch, tmp_path: Path):
@@ -194,6 +207,65 @@ def test_demo_local_health_route_returns_local_urls(monkeypatch):
     assert response.status_code == 200
     assert response.json()["local_demo_url"].endswith("/demo")
     assert response.json()["local_docs_url"].endswith("/docs")
+
+
+def test_demo_github_status_route_returns_payload(monkeypatch):
+    monkeypatch.setattr(demo_routes, "is_demo_ui_enabled", lambda: True)
+    monkeypatch.setattr(
+        demo_routes,
+        "get_github_status",
+        lambda: {
+            "repository": "hgbe-GH/openclassrooms-projet5",
+            "default_branch": "main",
+            "last_workflow_conclusion": "success",
+        },
+    )
+    monkeypatch.setattr(demo_routes, "update_demo_snapshot", lambda section, payload: {})
+
+    response = client.get("/demo-api/github/status")
+
+    assert response.status_code == 200
+    assert response.json()["last_workflow_conclusion"] == "success"
+
+
+def test_demo_huggingface_status_route_returns_payload(monkeypatch):
+    monkeypatch.setattr(demo_routes, "is_demo_ui_enabled", lambda: True)
+    monkeypatch.setattr(
+        demo_routes,
+        "get_huggingface_status",
+        lambda: {
+            "space_id": "hgbe-gh/openclassrooms-projet5",
+            "runtime_stage": "RUNNING",
+            "docs_status": 200,
+        },
+    )
+    monkeypatch.setattr(demo_routes, "update_demo_snapshot", lambda section, payload: {})
+
+    response = client.get("/demo-api/huggingface/status")
+
+    assert response.status_code == 200
+    assert response.json()["runtime_stage"] == "RUNNING"
+
+
+def test_demo_full_refresh_route_returns_payload(monkeypatch):
+    monkeypatch.setattr(demo_routes, "is_demo_ui_enabled", lambda: True)
+    monkeypatch.setattr(
+        demo_routes,
+        "build_full_refresh_payload",
+        lambda local_base_url: {
+            "public_status": {"docs_status": 200},
+            "public_run": {"predict_with_key_status": 200},
+            "local_health": {"local_demo_url": f"{local_base_url}/demo"},
+            "github_status": {"last_workflow_conclusion": "success"},
+            "huggingface_status": {"runtime_stage": "RUNNING"},
+            "snapshot": {"generated_at": "2026-05-29T09:00:00+00:00"},
+        },
+    )
+
+    response = client.post("/demo-api/full-refresh")
+
+    assert response.status_code == 200
+    assert response.json()["public_status"]["docs_status"] == 200
 
 
 def test_parse_quality_metrics_extracts_expected_values():
@@ -348,6 +420,110 @@ def test_run_public_demo_handles_http_error(monkeypatch):
 
     assert payload["predict_with_key_status"] is None
     assert payload["error"] == "network down"
+
+
+def test_get_github_status_handles_success(monkeypatch):
+    class FakeResponse:
+        def __init__(self, status_code, payload):
+            self.status_code = status_code
+            self._payload = payload
+
+        def json(self):
+            return self._payload
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def get(self, url):
+            if url.endswith("/actions/runs?per_page=1"):
+                return FakeResponse(
+                    200,
+                    {
+                        "workflow_runs": [
+                            {
+                                "name": "CI/CD",
+                                "display_title": "demo",
+                                "status": "completed",
+                                "conclusion": "success",
+                                "updated_at": "2026-05-29T09:00:00Z",
+                                "html_url": "https://github.com/example/run",
+                                "head_sha": "remote-sha",
+                            }
+                        ]
+                    },
+                )
+            return FakeResponse(200, {"default_branch": "main", "private": False})
+
+    monkeypatch.setattr(demo_routes, "get_github_repository", lambda: "hgbe-GH/openclassrooms-projet5")
+    monkeypatch.setattr(demo_routes, "get_default_branch_name", lambda: "main")
+    monkeypatch.setattr(demo_routes, "get_local_git_sha", lambda: "local-sha")
+    monkeypatch.setattr(demo_routes, "get_remote_git_sha", lambda branch: "remote-sha")
+    monkeypatch.setattr(demo_routes, "_make_http_client", lambda timeout: FakeClient())
+
+    payload = get_github_status()
+
+    assert payload["repository"] == "hgbe-GH/openclassrooms-projet5"
+    assert payload["last_workflow_conclusion"] == "success"
+    assert payload["remote_sha"] == "remote-sha"
+
+
+def test_get_huggingface_status_handles_success(monkeypatch):
+    class FakeResponse:
+        def __init__(self, status_code, payload):
+            self.status_code = status_code
+            self._payload = payload
+
+        def json(self):
+            return self._payload
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def get(self, url):
+            if url.endswith("/runtime"):
+                return FakeResponse(200, {"stage": "RUNNING", "sha": "hf-sha"})
+            if url.endswith("/health"):
+                return FakeResponse(200, {"status": "ok"})
+            if url.endswith("/docs"):
+                return FakeResponse(200, {"ok": True})
+            if url == "https://demo.hf.space":
+                return FakeResponse(200, {"ok": True})
+            return FakeResponse(200, {"sha": "hf-sha", "lastModified": "2026-05-29T12:00:00Z"})
+
+    monkeypatch.setattr(demo_routes, "get_hf_space", lambda: "hgbe-gh/openclassrooms-projet5")
+    monkeypatch.setattr(demo_routes, "get_space_page_url", lambda: "https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5")
+    monkeypatch.setattr(demo_routes, "get_space_runtime_url", lambda: "https://demo.hf.space")
+    monkeypatch.setattr(demo_routes, "_make_http_client", lambda timeout: FakeClient())
+
+    payload = get_huggingface_status()
+
+    assert payload["space_id"] == "hgbe-gh/openclassrooms-projet5"
+    assert payload["runtime_stage"] == "RUNNING"
+    assert payload["docs_status"] == 200
+
+
+def test_build_full_refresh_payload_combines_sections(monkeypatch):
+    monkeypatch.setattr(demo_routes, "get_public_status", lambda: {"docs_status": 200})
+    monkeypatch.setattr(demo_routes, "run_public_demo", lambda: {"predict_with_key_status": 200})
+    monkeypatch.setattr(demo_routes, "get_local_demo_health", lambda: {"service_health": {"status": "ok"}})
+    monkeypatch.setattr(demo_routes, "get_github_status", lambda: {"last_workflow_conclusion": "success"})
+    monkeypatch.setattr(demo_routes, "get_huggingface_status", lambda: {"runtime_stage": "RUNNING"})
+    monkeypatch.setattr(demo_routes, "load_demo_snapshot", lambda: {"generated_at": "2026-05-29T09:00:00+00:00"})
+    monkeypatch.setattr(demo_routes, "update_demo_snapshot", lambda section, payload: {})
+
+    payload = build_full_refresh_payload("http://127.0.0.1:8000")
+
+    assert payload["public_status"]["docs_status"] == 200
+    assert payload["local_health"]["local_demo_url"].endswith("/demo")
+    assert payload["presentation"]["presentation_url"].endswith("/demo-api/presentation")
 
 
 def test_snapshot_helpers_roundtrip(monkeypatch, tmp_path: Path):

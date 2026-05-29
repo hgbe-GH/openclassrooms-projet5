@@ -47,10 +47,19 @@ wait_for_demo() {
   return 1
 }
 
+dashboard_is_current() {
+  base_url="$1"
+  [ "$(http_code "$base_url/demo")" = "200" ] || return 1
+  [ "$(http_code "$base_url/demo-api/presentation")" = "200" ] || return 1
+  [ "$(http_code "$base_url/demo-api/full-refresh")" = "405" ] || return 1
+  return 0
+}
+
 existing_demo_url="http://$HOST:$PREFERRED_PORT/demo"
 existing_health_url="http://$HOST:$PREFERRED_PORT/health"
+existing_base_url="http://$HOST:$PREFERRED_PORT"
 
-if [ "$(http_code "$existing_demo_url")" = "200" ]; then
+if dashboard_is_current "$existing_base_url"; then
   FINAL_URL="$existing_demo_url"
 elif [ "$(http_code "$existing_health_url")" = "200" ]; then
   FREE_PORT="$(find_free_port)"
