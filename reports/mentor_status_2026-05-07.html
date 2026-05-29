@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Projet 5 - Point mentor du 7 mai 2026</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --paper: #fffdf8;
+        --ink: #1d2433;
+        --accent: #0d5c63;
+        --accent-2: #f2a65a;
+        --muted: #5e6877;
+        --line: #d8cfbf;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(242, 166, 90, 0.18), transparent 24rem),
+          linear-gradient(180deg, #efe6d6 0%, var(--bg) 100%);
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
+
+      .hero,
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(29, 36, 51, 0.08);
+      }
+
+      .hero {
+        padding: 36px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(13, 92, 99, 0.08);
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 14px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.05;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .hero-grid,
+      .grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 2fr 1fr;
+        align-items: start;
+        margin-top: 24px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        margin-top: 24px;
+      }
+
+      .panel {
+        padding: 26px;
+      }
+
+      .metric {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-right: 8px;
+      }
+
+      .done {
+        background: rgba(13, 92, 99, 0.1);
+        color: var(--accent);
+      }
+
+      .todo {
+        background: rgba(242, 166, 90, 0.18);
+        color: #8f4f06;
+      }
+
+      ul {
+        padding-left: 18px;
+        margin: 0;
+      }
+
+      .timeline {
+        border-left: 3px solid rgba(13, 92, 99, 0.2);
+        padding-left: 18px;
+      }
+
+      .quote {
+        margin-top: 20px;
+        padding: 16px 18px;
+        border-left: 4px solid var(--accent-2);
+        background: rgba(242, 166, 90, 0.08);
+        color: var(--ink);
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.95em;
+      }
+
+      @media (max-width: 760px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Projet 5 OpenClassrooms</span>
+        <h1>Point mentor du 7 mai 2026</h1>
+        <p>
+          Synthese versionnee des retours de mentorat, des risques identifies et des actions
+          necessaires avant la soutenance.
+        </p>
+        <div class="hero-grid">
+          <div class="panel">
+            <h2>Constat principal</h2>
+            <p>
+              La partie technique etait deja presque terminee : API fonctionnelle, modele ML
+              integre, PostgreSQL raccorde et premiers tests en place. Le principal risque ne
+              portait pas sur le code, mais sur la preuve de maitrise : documentation,
+              livrables de soutenance et CI/CD devaient encore etre valorises proprement.
+            </p>
+            <div class="quote">
+              Risque principal signale par le mentor : projet techniquement bon mais sous-valorise
+              si la documentation ne prouve pas clairement la maitrise.
+            </div>
+          </div>
+          <div class="panel">
+            <div class="metric">4</div>
+            <p>blocs de travail prioritaires avant soutenance</p>
+            <div class="metric">1</div>
+            <p>narratif a clarifier : besoin metier -&gt; API -&gt; preuve technique</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Avancees confirmees</h2>
+          <ul>
+            <li>Flux complet FastAPI -&gt; modele ML -&gt; PostgreSQL -&gt; reponse API.</li>
+            <li>Depot Git, environnement, routes API, base de donnees et scripts deja stabilises.</li>
+            <li>Premiers tests unitaires et d'integration deja en place.</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h2>Actions techniques</h2>
+          <ul>
+            <li>Completer Swagger/OpenAPI avec exemples et erreurs documentees.</li>
+            <li>Verifier le workflow GitHub Actions et la gestion des secrets.</li>
+            <li>Documenter proprement le schema PostgreSQL et le logging des predictions.</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h2>Actions de valorisation</h2>
+          <ul>
+            <li>README complet, executable et relie aux criteres OpenClassrooms.</li>
+            <li>Support de soutenance court, cible livrables et preuves.</li>
+            <li>Captures, schema d'architecture et commandes reproductibles.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Plan SMART retenu</h2>
+          <div class="timeline">
+            <p><span class="status done">Fait</span> Finaliser un README complet et executable.</p>
+            <p><span class="status done">Fait</span> Ajouter une section architecture claire.</p>
+            <p><span class="status done">Fait</span> Creer un support HTML de soutenance versionne.</p>
+            <p><span class="status todo">A revalider</span> Verifier le Space public apres redeploiement.</p>
+          </div>
+        </article>
+        <article class="panel">
+          <h2>Storytelling de soutenance</h2>
+          <ul>
+            <li>Partir du besoin metier : rendre le modele utilisable via une API fiable.</li>
+            <li>Montrer le pipeline en une slide, puis une demo courte de `/predict`.</li>
+            <li>Justifier FastAPI, PostgreSQL, Pytest et GitHub Actions par leur role.</li>
+            <li>Finir par les limites et les pistes d'amelioration.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

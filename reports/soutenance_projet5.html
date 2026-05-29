@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Soutenance Projet 5 - Attrition API</title>
+    <style>
+      :root {
+        --bg: #f7f3ea;
+        --surface: rgba(255, 252, 245, 0.92);
+        --ink: #1f2430;
+        --muted: #596273;
+        --line: rgba(31, 36, 48, 0.1);
+        --accent: #0f766e;
+        --accent-2: #d97706;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        background:
+          radial-gradient(circle at top right, rgba(217, 119, 6, 0.16), transparent 20rem),
+          radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.16), transparent 22rem),
+          var(--bg);
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 24px 0 64px;
+      }
+
+      .slide {
+        min-height: 88vh;
+        margin: 24px 0;
+        padding: 36px;
+        border-radius: 28px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: 0 28px 70px rgba(31, 36, 48, 0.08);
+        display: grid;
+        gap: 24px;
+        align-content: start;
+      }
+
+      .slide-id {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.1);
+        color: var(--accent);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.78rem;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        line-height: 1.06;
+      }
+
+      h1 {
+        font-size: clamp(2.2rem, 4vw, 4.3rem);
+      }
+
+      h2 {
+        font-size: clamp(1.7rem, 3vw, 2.6rem);
+      }
+
+      p,
+      li,
+      td,
+      th {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.74);
+      }
+
+      .accent {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .metric {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--accent);
+      }
+
+      .pipeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .step {
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(15, 118, 110, 0.06);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+
+      pre {
+        margin: 0;
+        padding: 18px;
+        border-radius: 18px;
+        background: #16202a;
+        color: #f5f0e7;
+        overflow: auto;
+      }
+
+      .proof {
+        border-left: 4px solid var(--accent-2);
+        padding-left: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .two,
+        .three {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="slide">
+        <span class="slide-id">Slide 1</span>
+        <h1>Deployez un modele de Machine Learning</h1>
+        <p>
+          Projet 5 OpenClassrooms. Objectif : rendre un modele de prediction d'attrition
+          exploitable via une API FastAPI testee, securisee, documentee et preparer son
+          deploiement sur Hugging Face Spaces.
+        </p>
+        <div class="grid three">
+          <div class="card">
+            <div class="metric">1</div>
+            <p>modele ML expose par API</p>
+          </div>
+          <div class="card">
+            <div class="metric">1</div>
+            <p>chaine PostgreSQL pour tracer les predictions</p>
+          </div>
+          <div class="card">
+            <div class="metric">1</div>
+            <p>pipeline CI/CD versionne pour tester et deployer</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 2</span>
+        <h2>Besoin metier et reponse technique</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Besoin</p>
+            <p>
+              Futurisys souhaite rendre son modele d'attrition utilisable en production,
+              avec une API fiable, des tests, une authentification simple et une base de
+              donnees exploitable pour l'audit.
+            </p>
+          </div>
+          <div class="card">
+            <p class="accent">Reponse</p>
+            <p>
+              Une application FastAPI qui valide le payload, appelle l'artefact modele,
+              journalise la prediction dans PostgreSQL et expose sa documentation via Swagger.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 3</span>
+        <h2>Architecture de la solution</h2>
+        <div class="pipeline">
+          <div class="step">1. Client -&gt; <code>POST /predict</code> ou <code>GET /health</code></div>
+          <div class="step">2. Validation Pydantic du payload et des bornes</div>
+          <div class="step">3. Preprocessing et chargement de l'artefact XGBoost</div>
+          <div class="step">4. Calcul de <code>probabilite_attrition</code>, <code>prediction_attrition</code>, <code>threshold</code></div>
+          <div class="step">5. Journalisation dans PostgreSQL si la base est configuree</div>
+          <div class="step">6. Supervision, tests, CI/CD et deploiement Space Docker</div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 4</span>
+        <h2>API, Swagger et securite</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Endpoints</p>
+            <ul>
+              <li><code>GET /health</code> : etat du modele, de la DB et de l'auth.</li>
+              <li><code>POST /predict</code> : prediction et persistence.</li>
+              <li><code>GET /docs</code> : Swagger / OpenAPI.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Securisation</p>
+            <ul>
+              <li>Header attendu : <code>X-API-Key</code>.</li>
+              <li>Route protegee : <code>POST /predict</code>.</li>
+              <li>Reponse attendue si cle invalide : <code>401</code>.</li>
+              <li>Erreurs documentees : <code>401</code>, <code>422</code>, <code>503</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Preuve a montrer</p>
+          <p>
+            Ouvrir <code>/docs</code> pendant la demo pour afficher les schemas Pydantic,
+            les exemples de payload et les erreurs documentees.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 5</span>
+        <h2>Base PostgreSQL et tracabilite</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Table principale</p>
+            <ul>
+              <li><code>prediction_logs</code></li>
+              <li><code>request_payload</code> en <code>JSONB</code></li>
+              <li>score, decision binaire, seuil et identifiant du modele</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Livrables BDD</p>
+            <ul>
+              <li><code>scripts/create_db.py</code></li>
+              <li><code>scripts/seed_prediction_logs.py</code></li>
+              <li><code>sql/create_prediction_logs.sql</code></li>
+              <li><code>references/prediction_logs_examples.csv</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Preuve a montrer</p>
+          <p>
+            Executer un <code>SELECT</code> sur <code>prediction_logs</code> apres un appel
+            <code>/predict</code> pour prouver la persistance.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 6</span>
+        <h2>Tests, couverture et qualite</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Cas verifies</p>
+            <ul>
+              <li>chargement modele</li>
+              <li><code>/health</code> en mode normal et degrade</li>
+              <li><code>/predict</code> succes et erreurs</li>
+              <li>authentification par cle API</li>
+              <li>integration PostgreSQL et seed</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Commandes</p>
+            <pre>uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
+uv run ruff check .</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 7</span>
+        <h2>CI/CD et deploiement</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Bloc</th>
+              <th>Preuve</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tests et lint</td>
+              <td><code>.github/workflows/ci.yml</code> execute Pytest, couverture et Ruff.</td>
+            </tr>
+            <tr>
+              <td>Base de donnees</td>
+              <td>Service PostgreSQL GitHub Actions + migrations Alembic.</td>
+            </tr>
+            <tr>
+              <td>Modele chiffre</td>
+              <td>Restauration via <code>MODEL_ARTIFACT_PASSPHRASE</code>.</td>
+            </tr>
+            <tr>
+              <td>Deploiement</td>
+              <td>Envoi vers Hugging Face Spaces sur tag <code>v*</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 8</span>
+        <h2>Etat du Space et remediation</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Constat au 29 mai 2026</p>
+            <ul>
+              <li>UI Space : <code>200</code></li>
+              <li>Runtime <code>/health</code> : <code>500</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="accent">Correctif apporte dans le depot</p>
+            <ul>
+              <li>script d'entree rendu compatible <code>sh</code></li>
+              <li>bit executable force dans le <code>Dockerfile</code></li>
+              <li>README mis a jour sans affirmation non verifiee</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card proof">
+          <p class="accent">Point a assumer a l'oral</p>
+          <p>
+            Le depot contient le correctif. La validation publique du Space doit etre relancee
+            apres push et redeploiement.
+          </p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <span class="slide-id">Slide 9</span>
+        <h2>Demo courte et conclusion</h2>
+        <div class="grid two">
+          <div class="card">
+            <p class="accent">Scenario de demo en 3 minutes</p>
+            <ol>
+              <li>Lancer l'API localement.</li>
+              <li>Montrer Swagger sur <code>/docs</code>.</li>
+              <li>Appeler <code>/predict</code> avec le payload versionne.</li>
+              <li>Verifier la ligne ajoutee dans PostgreSQL.</li>
+              <li>Montrer les tests et le workflow CI/CD.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <p class="accent">Limites et suites</p>
+            <ul>
+              <li>authentification simple par cle API, pas d'IAM complet</li>
+              <li>pas de dashboard BI dans ce depot</li>
+              <li>revalidation publique du Space apres redeploiement</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

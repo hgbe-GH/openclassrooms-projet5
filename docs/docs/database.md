@@ -24,6 +24,9 @@ Deux options sont fournies dans le depot :
   migrations Alembic ;
 - `sql/create_prediction_logs.sql` : version SQL brute de la table principale.
 
+Si le port local `5432` est deja pris, le demarrage Docker peut etre surcharge avec
+`POSTGRES_PORT=55433`.
+
 ## Structure de la table
 
 ```mermaid

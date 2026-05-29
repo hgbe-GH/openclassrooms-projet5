@@ -103,6 +103,24 @@ def test_health_returns_degraded_status_when_database_unavailable(monkeypatch):
     assert "database unavailable" in body["detail"]
 
 
+def test_health_returns_degraded_status_when_model_is_unavailable(monkeypatch):
+    def raise_model_error():
+        raise FileNotFoundError("missing model")
+
+    monkeypatch.setattr(app_main, "get_predictor", raise_model_error)
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+    monkeypatch.setattr(app_main, "is_authentication_enabled", lambda: True)
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "degraded"
+    assert body["model_loaded"] is False
+    assert body["authentication_enabled"] is True
+    assert "missing model" in body["detail"]
+
+
 def test_predict_returns_attrition_prediction(monkeypatch):
     monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
     monkeypatch.setattr(app_main, "log_prediction", lambda payload, prediction: False)
@@ -114,6 +132,34 @@ def test_predict_returns_attrition_prediction(monkeypatch):
     assert 0 <= body["probabilite_attrition"] <= 1
     assert body["prediction_attrition"] in {0, 1}
     assert 0 <= body["threshold"] <= 1
+
+
+def test_predict_returns_503_when_model_file_is_missing(monkeypatch):
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+
+    def raise_model_error():
+        raise FileNotFoundError("missing model")
+
+    monkeypatch.setattr(app_main, "get_predictor", raise_model_error)
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 503
+    assert "Modele introuvable" in response.json()["detail"]
+
+
+def test_predict_returns_400_when_predictor_rejects_payload(monkeypatch):
+    class RejectingPredictor:
+        def predict(self, features):
+            raise ValueError("bad features")
+
+    monkeypatch.setattr(app_main, "is_database_logging_enabled", lambda: False)
+    monkeypatch.setattr(app_main, "get_predictor", lambda: RejectingPredictor())
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "bad features"}
 
 
 def test_predict_returns_503_when_logging_fails_without_database_preflight(monkeypatch):
@@ -192,3 +238,18 @@ def test_predict_requires_api_key_when_authentication_is_enabled(monkeypatch):
 
     assert unauthorized_response.status_code == 401
     assert authorized_response.status_code == 200
+
+
+def test_openapi_documents_prediction_security_examples_and_errors():
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+    schema = response.json()
+    predict_operation = schema["paths"]["/predict"]["post"]
+
+    assert set(predict_operation["responses"]) >= {"200", "401", "422", "503"}
+    assert predict_operation["requestBody"]["content"]["application/json"]["example"]["age"] == 41
+    assert predict_operation["responses"]["200"]["content"]["application/json"]["example"][
+        "prediction_attrition"
+    ] in {0, 1}
+    assert predict_operation["security"] == [{"APIKeyHeader": []}]

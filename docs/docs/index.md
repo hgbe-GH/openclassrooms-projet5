@@ -1,24 +1,35 @@
-# openclassrooms-projet5 documentation!
+# openclassrooms-projet5 documentation
 
-## Description
+## Objectif
 
-API de deploiement du modele attrition Projet 4 pour Futurisys.
+Ce depot expose un modele de prediction d'attrition via FastAPI, avec persistance
+PostgreSQL, tests, securisation par cle API et preparation du deploiement sur Hugging Face
+Spaces.
 
 ## Contenu
 
-- demarrage local ;
-- base PostgreSQL et jeu d'exemples ;
-- securisation par cle API ;
-- deploiement via GitHub Actions et Hugging Face Spaces.
+- demarrage local et commandes reproductibles ;
+- API FastAPI et documentation Swagger/OpenAPI ;
+- base PostgreSQL, migrations et jeu d'exemples ;
+- securisation par `X-API-Key` ;
+- workflow GitHub Actions et deploiement Space Docker ;
+- supports HTML de suivi mentor et de soutenance.
 
 ## Commandes rapides
 
-Utiliser directement `uv` pour les taches courantes :
-
 ```bash
 uv sync
+cp .env.example .env
 uv run python scripts/create_db.py
 uv run python scripts/seed_prediction_logs.py --truncate
 uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
 uv run ruff check .
+uv run uvicorn openclassrooms_projet5.api.main:app --reload
 ```
+
+## Artefacts utiles
+
+- `docs/docs/database.md`
+- `docs/docs/security.md`
+- `reports/mentor_status_2026-05-07.html`
+- `reports/soutenance_projet5.html`

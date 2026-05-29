@@ -41,6 +41,10 @@ Secrets/variables utilises par le projet :
 - `HF_SPACE` : chemin du Space cible ;
 - `DATABASE_URL` ou `POSTGRES_*` : configuration base de donnees.
 
+Le README ne suppose plus que ces secrets soient deja configures. Ils sont requis pour que
+la CI/CD et le runtime cible fonctionnent, mais doivent etre verifies explicitement au
+moment du deploiement.
+
 Le modele versionne pour la CI/CD et le deploiement est l'artefact chiffre
 `models/attrition_xgboost_pipeline.joblib.enc`. La passphrase de dechiffrement reste hors
 du depot.

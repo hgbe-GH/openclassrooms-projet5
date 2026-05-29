@@ -18,6 +18,8 @@ COPY openclassrooms_projet5 ./openclassrooms_projet5
 COPY models ./models
 COPY scripts ./scripts
 
+RUN chmod +x scripts/start_api.sh
+
 RUN uv sync --frozen
 
 EXPOSE 7860

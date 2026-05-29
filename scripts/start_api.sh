@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 MODEL_PATH="${MODEL_PATH:-models/attrition_xgboost_pipeline.joblib}"
 ENCRYPTED_MODEL_PATH="${MODEL_PATH}.enc"

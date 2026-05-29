@@ -4,7 +4,7 @@
 
 - Python 3.12
 - `uv`
-- Docker et Docker Compose
+- Docker
 
 ## Installation
 
@@ -15,19 +15,25 @@ cp .env.example .env
 
 ## Base de donnees
 
-Demarrer PostgreSQL :
+Demarrage standard :
 
 ```bash
 docker compose up -d postgres
 ```
 
-Creer la base et appliquer les migrations :
+Si `5432` est deja occupe :
+
+```bash
+POSTGRES_PORT=55433 docker compose up -d postgres
+```
+
+Creation / migrations :
 
 ```bash
 uv run python scripts/create_db.py
 ```
 
-Inserer le dataset d'exemples :
+Seed :
 
 ```bash
 uv run python scripts/seed_prediction_logs.py --truncate
@@ -46,7 +52,8 @@ uv run ruff check .
 uv run uvicorn openclassrooms_projet5.api.main:app --reload
 ```
 
-Documentation interactive :
+## Endpoints utiles
 
 - `http://127.0.0.1:8000/docs`
 - `http://127.0.0.1:8000/health`
+- `http://127.0.0.1:8000/openapi.json`
