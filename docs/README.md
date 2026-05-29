@@ -1,12 +1,17 @@
-Generating the docs
-----------
+# Documentation technique
 
-Use [mkdocs](http://www.mkdocs.org/) structure to update the documentation. 
+Cette arborescence contient la documentation MkDocs du projet.
 
-Build locally with:
+Points d'entree utiles :
 
-    mkdocs build
+- `docs/docs/index.md` : vue d'ensemble
+- `docs/docs/database.md` : schema PostgreSQL et preuves BDD
+- `docs/docs/security.md` : cle API et secrets
+- `docs/docs/getting-started.md` : installation et demarrage
 
-Serve locally with:
+Commandes :
 
-    mkdocs serve
+```bash
+mkdocs serve -f docs/mkdocs.yml
+mkdocs build -f docs/mkdocs.yml
+```

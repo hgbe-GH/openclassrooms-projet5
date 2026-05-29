@@ -388,41 +388,39 @@ docs / reports          doc technique et soutenance</pre>
         <div class="grid three">
           <div class="card">
             <span class="label">Point de demonstration</span>
-            <p class="accent">Sequence de presentation</p>
-            <ol>
-              <li>Je m'appuie sur le tableau de demonstration local.</li>
-              <li>Je montre la verification publique de l'API.</li>
-              <li>Je fais apparaitre la reponse authentifiee et la decision modele.</li>
-              <li>Je montre ensuite la trace PostgreSQL locale.</li>
-              <li>Je termine par la validation qualite et la couverture.</li>
-            </ol>
+            <p class="accent">Fil conducteur</p>
+            <p>
+              Je m'appuie sur un tableau de bord local qui centralise la verification du
+              Space public, la prediction authentifiee, la trace PostgreSQL et la qualite.
+            </p>
           </div>
           <div class="card">
             <span class="label">Preuve technique</span>
-            <p class="accent">Mode soutenance automatise</p>
-            <pre>./scripts/start_demo.sh
-
-# puis afficher le tableau de demonstration</pre>
+            <p class="accent">Point d'entree unique</p>
+            <p>
+              Le lancement du tableau de bord suffit pour retrouver la demonstration
+              publique et les preuves locales dans une meme interface.
+            </p>
           </div>
           <div class="card">
             <span class="label">Resultat observe</span>
-            <p><span class="result-ok">cockpit local -> 200</span></p>
-            <p><span class="result-ok">/docs -> 200</span></p>
-            <p><span class="result-warn">/predict sans cle -> 401</span></p>
-            <p><span class="result-ok">/predict avec cle -> 200</span></p>
+            <p><code>/docs</code> public : <span class="result-ok">200</span></p>
             <p><code>/health</code> public : <span class="result-ok">200</span></p>
+            <p><code>/predict</code> sans cle : <span class="result-warn">401</span></p>
+            <p><code>/predict</code> avec cle : <span class="result-ok">200</span></p>
+            <p>Tableau de bord local : <span class="result-ok">actif</span></p>
           </div>
         </div>
         <div class="grid two">
           <div class="card proof">
-            <p class="accent">Secours operationnel</p>
+            <p class="accent">Continuite de demonstration</p>
             <p>
-              Si le tableau de demonstration n'est pas disponible, je reviens au
-              support HTML, a Swagger, puis aux preuves locales en terminal.
+              Je garde un appui local si le Space ralentit, sans changer la logique
+              de presentation ni les preuves montrees.
             </p>
           </div>
           <div class="card proof">
-            <p class="accent">Cadre de demonstration</p>
+            <p class="accent">Configuration retenue</p>
             <p>
               J'utilise la meme cle de demonstration sur le local et sur le Space :
               <code>change-me-for-local-dev</code>.
@@ -444,8 +442,8 @@ docs / reports          doc technique et soutenance</pre>
             <p>couverture globale actuelle</p>
           </div>
           <div class="card">
-            <div class="metric-small">2</div>
-            <p>preuves techniques mobilisees</p>
+            <div class="metric-small">ruff</div>
+            <p>verification statique complementaire</p>
           </div>
         </div>
         <div class="grid two">
@@ -462,10 +460,12 @@ docs / reports          doc technique et soutenance</pre>
           </div>
           <div class="card">
             <span class="label">Preuve technique</span>
-            <p class="accent">Bloc terminal qualite</p>
-            <pre>API_KEY='' uv run pytest --cov=openclassrooms_projet5 \
-  --cov-report=term-missing --cov-report=xml -q
-uv run ruff check .</pre>
+            <p class="accent">Lecture a porter</p>
+            <p>
+              Je montre d'abord le resultat consolide dans le tableau de bord,
+              puis je peux rejouer localement Pytest et Ruff si un controle detaille
+              m'est demande.
+            </p>
           </div>
         </div>
       </section>
@@ -499,19 +499,10 @@ uv run ruff check .</pre>
           <div class="card">
             <span class="label">Preuve technique</span>
             <p class="accent">Preuve SQL locale</p>
-            <pre>uv run python - <<'PY'
-from sqlalchemy import create_engine, text
-from openclassrooms_projet5.config import get_database_url
-engine = create_engine(get_database_url(), future=True)
-with engine.connect() as connection:
-    result = connection.execute(
-        text("SELECT prediction_attrition, model_identifier, "
-             "request_payload->>'poste' AS poste "
-             "FROM prediction_logs ORDER BY created_at DESC LIMIT 1")
-    )
-    print(dict(result.mappings().one()))
-engine.dispose()
-PY</pre>
+            <p>
+              Je fais apparaitre la derniere ligne de <code>prediction_logs</code>
+              pour montrer la decision, le modele utilise et le profil journalise.
+            </p>
           </div>
           <div class="card">
             <span class="label">Resultat observe</span>
@@ -587,7 +578,7 @@ PY</pre>
           <p class="accent">Conclusion</p>
           <p>
             Je presente ici un modele ML transforme en service exploitable, avec
-            une API documentee, une traçabilite PostgreSQL, des tests automatises
+            une API documentee, une tracabilite PostgreSQL, des tests automatises
             et une chaine CI/CD demonstrable.
           </p>
         </div>

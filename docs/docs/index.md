@@ -13,7 +13,7 @@ Spaces.
 - base PostgreSQL, migrations et jeu d'exemples ;
 - securisation par `X-API-Key` ;
 - workflow GitHub Actions et deploiement Space Docker ;
-- supports HTML de suivi mentor et de soutenance.
+- supports HTML de suivi et de soutenance.
 
 ## Commandes rapides
 
@@ -27,7 +27,7 @@ uv run ruff check .
 uv run uvicorn openclassrooms_projet5.api.main:app --reload
 ```
 
-## Artefacts utiles
+## Points d'appui
 
 - `docs/docs/database.md`
 - `docs/docs/security.md`

@@ -46,14 +46,33 @@ FastAPI (/predict, /health, /docs)
     +--> Hugging Face Space Docker
 ```
 
-## Demo soutenance
+## Soutenance
 
-Point d'entree principal a utiliser pendant la soutenance :
+Le point d'entree recommande pour l'oral est un tableau de bord local qui centralise :
 
-- cockpit local : URL annoncee par `./scripts/start_demo.sh`
+- la verification du Space public ;
+- la prediction authentifiee ;
+- la trace PostgreSQL locale ;
+- la qualite logicielle.
+
+References utiles :
+
+- tableau de bord local : URL annoncee par `./scripts/start_demo.sh`
 - Space public : `https://hgbe-gh-openclassrooms-projet5.hf.space`
 - Swagger / OpenAPI : `https://hgbe-gh-openclassrooms-projet5.hf.space/docs`
 - cle de demo : `X-API-Key: change-me-for-local-dev`
+
+Lancement recommande :
+
+```bash
+./scripts/start_demo.sh
+```
+
+Ce script :
+
+- active `ENABLE_DEMO_UI=true` ;
+- demarre l'API locale si necessaire ;
+- annonce l'URL locale du tableau de bord.
 
 Etat verifie le `29 mai 2026` :
 
@@ -62,67 +81,7 @@ Etat verifie le `29 mai 2026` :
 - `POST /predict` sans cle : `401`
 - `POST /predict` avec `X-API-Key: change-me-for-local-dev` : `200`
 
-Commandes de demo minimales :
-
-```bash
-curl -sS -o /dev/null -w '%{http_code}\n' \
-  https://hgbe-gh-openclassrooms-projet5.hf.space/docs
-
-curl -sS -o /dev/null -w '%{http_code}\n' \
-  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
-  -H 'Content-Type: application/json' \
-  -d @references/predict_payload_example.json
-
-curl -sS -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me-for-local-dev' \
-  -d @references/predict_payload_example.json
-```
-
-Fallback local si le Space ralentit :
-
-- URL locale du cockpit annoncee par le script
-- URL locale `/docs` annoncee par le script
-- preuve PostgreSQL et couverture de tests disponibles uniquement en local
-
-## Mode soutenance automatise
-
-Le mode recommande pour l'oral n'est plus `support + terminal`, mais un cockpit local
-qui orchestre le Space public et les preuves locales.
-
-Lancement :
-
-```bash
-./scripts/start_demo.sh
-```
-
-Le script :
-
-- active `ENABLE_DEMO_UI=true` ;
-- demarre l'API locale avec le cockpit si necessaire ;
-- prepare un snapshot de demo ;
-- annonce l'URL locale du cockpit.
-
-Routes internes ajoutees pour la soutenance :
-
-- `GET /demo`
-- `GET /demo-api/public/status`
-- `POST /demo-api/public/run`
-- `GET /demo-api/local/health`
-- `POST /demo-api/local/db-proof`
-- `POST /demo-api/local/quality`
-
-Variables locales importantes :
-
-- `ENABLE_DEMO_UI=true`
-- `API_KEY=change-me-for-local-dev`
-- `HF_SPACE_URL=https://hgbe-gh-openclassrooms-projet5.hf.space`
-- `DATABASE_URL=...` pour la preuve PostgreSQL
-
-Plan B :
-
-- si le cockpit ne demarre pas, revenir a `/docs` + support HTML + terminal ;
-- si le Space ralentit, garder le cockpit local et montrer la preuve PostgreSQL puis la qualite.
+Si le Space ralentit, le tableau de bord local et `/docs` restent disponibles en secours.
 
 ## Demarrage local
 
@@ -208,13 +167,11 @@ URLs locales :
 - `http://127.0.0.1:8000/docs`
 - `http://127.0.0.1:8000/openapi.json`
 
-## Demonstration reproductible
+## Verification locale
 
-Payload d'exemple versionne :
+Payload d'exemple versionne : `references/predict_payload_example.json`
 
-- `references/predict_payload_example.json`
-
-Lancer un appel authentifie :
+Appel authentifie :
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" \
@@ -223,7 +180,7 @@ curl -X POST "http://127.0.0.1:8000/predict" \
   -d @references/predict_payload_example.json
 ```
 
-Verifier la trace en base :
+Trace PostgreSQL :
 
 ```bash
 uv run python - <<'PY'
@@ -244,14 +201,14 @@ engine.dispose()
 PY
 ```
 
-Executer qualite et couverture :
+Qualite et couverture :
 
 ```bash
 uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
 uv run ruff check .
 ```
 
-Generer un snapshot pre-soutenance :
+Le snapshot de demonstration reste disponible si une capture d'etat prealable est utile :
 
 ```bash
 uv run python scripts/demo_snapshot.py
@@ -399,21 +356,8 @@ Choix de demonstration :
 - PostgreSQL reste demontre localement pour la preuve de persistance ;
 - la meme cle API est utilisee en local et sur le Space pour eviter toute friction pendant l'oral.
 
-Checks de demo a relancer :
-
-```bash
-curl -sS -o /dev/null -w '%{http_code}\n' https://huggingface.co/spaces/hgbe-gh/openclassrooms-projet5
-curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/health
-curl -sS -o /dev/null -w '%{http_code}\n' https://hgbe-gh-openclassrooms-projet5.hf.space/docs
-curl -sS -o /dev/null -w '%{http_code}\n' \
-  -X POST https://hgbe-gh-openclassrooms-projet5.hf.space/predict \
-  -H "Content-Type: application/json" \
-  -d @references/predict_payload_example.json
-curl -X POST "https://hgbe-gh-openclassrooms-projet5.hf.space/predict" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: change-me-for-local-dev" \
-  -d @references/predict_payload_example.json
-```
+La verification la plus simple pendant l'oral reste l'usage du tableau de bord local, qui
+rejoue ces controles contre le Space sans multiplier les commandes manuelles.
 
 ## Preuves par competence OpenClassrooms
 
@@ -426,7 +370,7 @@ curl -X POST "https://hgbe-gh-openclassrooms-projet5.hf.space/predict" \
 | Mettre en place l'authentification | `openclassrooms_projet5/api/security.py`, `tests/test_api.py`, `docs/docs/security.md` |
 | Modeliser une infrastructure compatible SI | `Dockerfile`, `.github/workflows/ci.yml`, `scripts/start_api.sh` |
 | Structurer l'architecture des donnees | `openclassrooms_projet5/db/models.py`, `docs/docs/database.md`, `references/prediction_logs_examples.csv` |
-| Prouver la qualite logicielle | `tests/`, `coverage.xml`, `ruff`, `README.md` |
+| Prouver la qualite logicielle | `tests/`, `pytest`, `ruff`, `README.md` |
 
 ## Supports de suivi et de soutenance
 

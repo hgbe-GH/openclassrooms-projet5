@@ -63,14 +63,14 @@ else
 fi
 
 if [ -z "${FINAL_URL:-}" ]; then
-  echo "Unable to start the demo cockpit. Check $LOG_PATH."
+  echo "Unable to start the soutenance dashboard. Check $LOG_PATH."
   exit 1
 fi
 
-echo "Preparing demo snapshot..."
+echo "Preparing soutenance snapshot..."
 ENABLE_DEMO_UI=true uv run python scripts/demo_snapshot.py --skip-quality >/dev/null || true
 
-echo "Demo cockpit ready: $FINAL_URL"
+echo "Soutenance dashboard ready: $FINAL_URL"
 echo "Log file: $LOG_PATH"
 
 if command -v xdg-open >/dev/null 2>&1; then

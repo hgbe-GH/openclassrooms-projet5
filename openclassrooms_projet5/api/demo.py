@@ -313,7 +313,7 @@ def build_demo_html(local_base_url: str) -> str:
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cockpit Soutenance - Attrition API</title>
+    <title>Tableau de bord de soutenance - Attrition API</title>
     <style>
       :root {
         --bg: #fbf7ef;
@@ -515,7 +515,7 @@ def build_demo_html(local_base_url: str) -> str:
           <div class="grid">
             <span class="pill">Soutenance Projet 5</span>
             <h1>API de prediction d'attrition</h1>
-            <p class="hero-note">Demonstration technique en direct. Cette interface rassemble la verification publique de l'API, la trace PostgreSQL locale et la validation qualite.</p>
+            <p class="hero-note">Demonstration technique en direct. Cette interface rassemble les preuves publiques et locales dans un meme ecran de presentation.</p>
           </div>
           <div class="panel">
             <p class="metric-label">Demonstration publique</p>
@@ -551,7 +551,7 @@ def build_demo_html(local_base_url: str) -> str:
       </section>
 
       <section class="panel grid">
-        <h2>Parcours de demonstration</h2>
+        <h2>Fil de preuve</h2>
         <div class="timeline">
           <div class="step">Documentation</div>
           <div class="step">Authentification</div>
@@ -645,13 +645,13 @@ def build_demo_html(local_base_url: str) -> str:
           <div class="proof-head">
             <div>
               <p class="metric-label">Etat local</p>
-              <h2>Disponibilite de secours</h2>
+              <h2>Environnement local</h2>
             </div>
             <span class="pill">Local</span>
           </div>
           <div class="summary-grid">
             <div class="summary-line"><span>Documentation locale</span><strong id="local-docs-url">__LOCAL_BASE_URL__/docs</strong></div>
-            <div class="summary-line"><span>Tableau de demonstration</span><strong id="local-demo-url">__LOCAL_BASE_URL__/demo</strong></div>
+            <div class="summary-line"><span>Tableau de bord local</span><strong id="local-demo-url">__LOCAL_BASE_URL__/demo</strong></div>
           </div>
         </div>
         <div class="panel proof-card">
@@ -811,7 +811,7 @@ def build_demo_html(local_base_url: str) -> str:
 def build_landing_html(local_base_url: str) -> str:
     demo_link = ""
     if is_demo_ui_enabled():
-        demo_link = '<p><a class="button-link" href="/demo">Tableau de demonstration</a></p>'
+        demo_link = '<p><a class="button-link" href="/demo">Tableau de bord local</a></p>'
 
     html = """
 <!DOCTYPE html>
