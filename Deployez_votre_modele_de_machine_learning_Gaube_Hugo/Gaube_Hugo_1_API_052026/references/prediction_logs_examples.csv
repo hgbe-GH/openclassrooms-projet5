@@ -1,3 +1,0 @@
-id,created_at,request_payload_json,probabilite_attrition,prediction_attrition,threshold,model_identifier
-5f094a53-1b57-4580-a436-c1a4b276fd11,2026-05-21T10:15:00+00:00,"{""age"":41,""genre"":""F"",""revenu_mensuel"":5993,""statut_marital"":""Celibataire"",""departement"":""Commercial"",""poste"":""Cadre Commercial""}",0.73,1,0.50,attrition_xgboost_pipeline.joblib
-84f9680d-7250-4ae6-a971-87be45026ea2,2026-05-21T10:16:00+00:00,"{""age"":35,""genre"":""M"",""revenu_mensuel"":4200,""statut_marital"":""Marie"",""departement"":""R&D"",""poste"":""Ingenieur Data""}",0.24,0,0.50,attrition_xgboost_pipeline.joblib
