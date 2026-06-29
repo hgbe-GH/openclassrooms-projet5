@@ -217,3 +217,7 @@ cython_debug/
 outputs/
 reports/artifact-build-manifest.json
 reports/.~lock*.pptx#
+
+# Delivery archives generated locally
+*.zip
+Deployez_votre_modele_de_machine_learning_Gaube_Hugo/
