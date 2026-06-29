@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from loguru import logger
 
-from openclassrooms_projet5.api.demo import router as demo_router
 from openclassrooms_projet5.api.schemas import (
     HEALTH_RESPONSE_DEGRADED_EXAMPLE,
     HEALTH_RESPONSE_OK_EXAMPLE,
@@ -37,6 +37,32 @@ app = FastAPI(
     version="0.1.0",
     openapi_tags=openapi_tags,
 )
+
+
+@app.get("/", include_in_schema=False)
+def landing_page() -> HTMLResponse:
+    return HTMLResponse(
+        """
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attrition API</title>
+  </head>
+  <body>
+    <main>
+      <h1>OpenClassrooms Projet 5 - Attrition API</h1>
+      <p>API FastAPI de prediction d'attrition.</p>
+      <ul>
+        <li><a href="/docs">Documentation OpenAPI</a></li>
+        <li><a href="/health">Etat du service</a></li>
+      </ul>
+    </main>
+  </body>
+</html>
+""".strip()
+    )
 
 
 def collect_health_response() -> HealthResponse:
@@ -185,6 +211,3 @@ def predict(
         prediction_attrition=prediction.prediction_attrition,
         threshold=prediction.threshold,
     )
-
-
-app.include_router(demo_router)

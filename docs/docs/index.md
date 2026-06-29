@@ -12,8 +12,7 @@ Spaces.
 - API FastAPI et documentation Swagger/OpenAPI ;
 - base PostgreSQL, migrations et jeu d'exemples ;
 - securisation par `X-API-Key` ;
-- workflow GitHub Actions et deploiement Space Docker ;
-- supports HTML de suivi et de soutenance.
+- workflow GitHub Actions et deploiement Space Docker.
 
 ## Commandes rapides
 
@@ -31,5 +30,4 @@ uv run uvicorn openclassrooms_projet5.api.main:app --reload
 
 - `docs/docs/database.md`
 - `docs/docs/security.md`
-- `reports/mentor_status_2026-05-07.html`
-- `reports/soutenance_projet5.html`
+- `docs/docs/getting-started.md`

@@ -113,20 +113,11 @@ def get_hf_space_runtime_url() -> str | None:
     return f"https://{owner}-{space_name}.hf.space"
 
 
-def is_demo_ui_enabled() -> bool:
-    return _get_bool_env("ENABLE_DEMO_UI", default=False)
-
-
-def get_demo_snapshot_path() -> Path:
-    return PROJ_ROOT / ".cache" / "demo_snapshot.json"
-
-
 DATABASE_URL = get_database_url()
 DB_ECHO = get_db_echo()
 API_KEY = get_api_key()
 HF_SPACE_URL = get_hf_space_url()
 HF_SPACE_RUNTIME_URL = get_hf_space_runtime_url()
-DEMO_SNAPSHOT_PATH = get_demo_snapshot_path()
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
