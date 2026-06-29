@@ -1,0 +1,511 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenClassrooms Projet 5 - Attrition API",
+    "description": "API FastAPI pour exposer le modele d'attrition du Projet 4.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "summary": "Verifier l'etat du service",
+        "description": "Controle le chargement du modele, l'etat de PostgreSQL quand la journalisation est active, et le statut de l'authentification.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Etat technique du service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "examples": {
+                  "ok": {
+                    "summary": "Service operationnel",
+                    "value": {
+                      "status": "ok",
+                      "model_loaded": true,
+                      "model_path": "models/attrition_xgboost_pipeline.joblib",
+                      "database_connected": false,
+                      "database_logging_enabled": false,
+                      "authentication_enabled": true
+                    }
+                  },
+                  "degraded": {
+                    "summary": "Service degrade",
+                    "value": {
+                      "status": "degraded",
+                      "model_loaded": false,
+                      "model_path": "models/attrition_xgboost_pipeline.joblib",
+                      "database_connected": false,
+                      "database_logging_enabled": true,
+                      "authentication_enabled": true,
+                      "detail": "model: [Errno 2] No such file or directory"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict": {
+      "post": {
+        "tags": [
+          "prediction"
+        ],
+        "summary": "Predire l'attrition d'un collaborateur",
+        "description": "Valide le payload d'entree, calcule la prediction via l'artefact modele, puis persiste la trace dans PostgreSQL quand une configuration base est active. Si `API_KEY` est definie, l'appel doit fournir l'en-tete `X-API-Key`.",
+        "operationId": "predict_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeFeatures"
+              },
+              "example": {
+                "age": 41,
+                "genre": "F",
+                "revenu_mensuel": 5993,
+                "statut_marital": "Celibataire",
+                "departement": "Commercial",
+                "poste": "Cadre Commercial",
+                "nombre_experiences_precedentes": 8,
+                "annee_experience_totale": 8,
+                "annees_dans_l_entreprise": 6,
+                "annees_dans_le_poste_actuel": 4,
+                "satisfaction_employee_environnement": 2,
+                "note_evaluation_precedente": 3,
+                "niveau_hierarchique_poste": 2,
+                "satisfaction_employee_nature_travail": 4,
+                "satisfaction_employee_equipe": 1,
+                "satisfaction_employee_equilibre_pro_perso": 1,
+                "note_evaluation_actuelle": 3,
+                "heure_supplementaires": 1,
+                "augementation_salaire_precedente": 11,
+                "nombre_participation_pee": 0,
+                "nb_formations_suivies": 0,
+                "distance_domicile_travail": 1,
+                "niveau_education": 2,
+                "domaine_etude": "Infra & Cloud",
+                "frequence_deplacement": "Occasionnel",
+                "annees_depuis_la_derniere_promotion": 0,
+                "annes_sous_responsable_actuel": 5
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Prediction calculee avec succes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                },
+                "example": {
+                  "probabilite_attrition": 0.7342,
+                  "prediction_attrition": 1,
+                  "threshold": 0.4781
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cle API absente ou invalide.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Invalid or missing API key."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Payload invalide ou champ obligatoire manquant."
+          },
+          "503": {
+            "description": "Modele indisponible ou persistance PostgreSQL impossible.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "model_missing": {
+                    "summary": "Modele introuvable",
+                    "value": {
+                      "detail": "Modele introuvable: [Errno 2] ..."
+                    }
+                  },
+                  "database_unavailable": {
+                    "summary": "Base indisponible",
+                    "value": {
+                      "detail": "Database unavailable for prediction logging: database unavailable"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EmployeeFeatures": {
+        "properties": {
+          "age": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Age",
+            "description": "Age du collaborateur."
+          },
+          "genre": {
+            "type": "string",
+            "title": "Genre",
+            "description": "Genre declare dans le dataset source."
+          },
+          "revenu_mensuel": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Revenu Mensuel",
+            "description": "Revenu mensuel brut."
+          },
+          "statut_marital": {
+            "type": "string",
+            "title": "Statut Marital",
+            "description": "Statut marital."
+          },
+          "departement": {
+            "type": "string",
+            "title": "Departement",
+            "description": "Departement ou famille metier."
+          },
+          "poste": {
+            "type": "string",
+            "title": "Poste",
+            "description": "Intitule de poste."
+          },
+          "nombre_experiences_precedentes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Nombre Experiences Precedentes",
+            "description": "Nombre d'experiences professionnelles precedentes."
+          },
+          "annee_experience_totale": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Annee Experience Totale",
+            "description": "Experience totale en annees."
+          },
+          "annees_dans_l_entreprise": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Annees Dans L Entreprise",
+            "description": "Anciennete dans l'entreprise."
+          },
+          "annees_dans_le_poste_actuel": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Annees Dans Le Poste Actuel",
+            "description": "Anciennete sur le poste actuel."
+          },
+          "satisfaction_employee_environnement": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Satisfaction Employee Environnement",
+            "description": "Satisfaction employee sur l'environnement de travail, echelle 1-4."
+          },
+          "note_evaluation_precedente": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Note Evaluation Precedente",
+            "description": "Evaluation precedente, echelle 1-4."
+          },
+          "niveau_hierarchique_poste": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Niveau Hierarchique Poste",
+            "description": "Niveau hierarchique du poste."
+          },
+          "satisfaction_employee_nature_travail": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Satisfaction Employee Nature Travail",
+            "description": "Satisfaction employee sur la nature du travail, echelle 1-4."
+          },
+          "satisfaction_employee_equipe": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Satisfaction Employee Equipe",
+            "description": "Satisfaction employee sur l'equipe, echelle 1-4."
+          },
+          "satisfaction_employee_equilibre_pro_perso": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Satisfaction Employee Equilibre Pro Perso",
+            "description": "Satisfaction sur l'equilibre vie pro / vie perso, echelle 1-4."
+          },
+          "note_evaluation_actuelle": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Note Evaluation Actuelle",
+            "description": "Evaluation actuelle, echelle 1-4."
+          },
+          "heure_supplementaires": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Heure Supplementaires",
+            "description": "Indicateur binaire de recours aux heures supplementaires."
+          },
+          "augementation_salaire_precedente": {
+            "type": "number",
+            "title": "Augementation Salaire Precedente",
+            "description": "Derniere augmentation de salaire en pourcentage."
+          },
+          "nombre_participation_pee": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Nombre Participation Pee",
+            "description": "Nombre de participations au plan d'epargne entreprise."
+          },
+          "nb_formations_suivies": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Nb Formations Suivies",
+            "description": "Nombre de formations suivies."
+          },
+          "distance_domicile_travail": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Distance Domicile Travail",
+            "description": "Distance domicile-travail."
+          },
+          "niveau_education": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Niveau Education",
+            "description": "Niveau d'education."
+          },
+          "domaine_etude": {
+            "type": "string",
+            "title": "Domaine Etude",
+            "description": "Domaine d'etude principal."
+          },
+          "frequence_deplacement": {
+            "type": "string",
+            "title": "Frequence Deplacement",
+            "description": "Frequence des deplacements professionnels."
+          },
+          "annees_depuis_la_derniere_promotion": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Annees Depuis La Derniere Promotion",
+            "description": "Nombre d'annees depuis la derniere promotion."
+          },
+          "annes_sous_responsable_actuel": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Annes Sous Responsable Actuel",
+            "description": "Nombre d'annees sous le responsable actuel."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "age",
+          "genre",
+          "revenu_mensuel",
+          "statut_marital",
+          "departement",
+          "poste",
+          "nombre_experiences_precedentes",
+          "annee_experience_totale",
+          "annees_dans_l_entreprise",
+          "annees_dans_le_poste_actuel",
+          "satisfaction_employee_environnement",
+          "note_evaluation_precedente",
+          "niveau_hierarchique_poste",
+          "satisfaction_employee_nature_travail",
+          "satisfaction_employee_equipe",
+          "satisfaction_employee_equilibre_pro_perso",
+          "note_evaluation_actuelle",
+          "heure_supplementaires",
+          "augementation_salaire_precedente",
+          "nombre_participation_pee",
+          "nb_formations_suivies",
+          "distance_domicile_travail",
+          "niveau_education",
+          "domaine_etude",
+          "frequence_deplacement",
+          "annees_depuis_la_derniere_promotion",
+          "annes_sous_responsable_actuel"
+        ],
+        "title": "EmployeeFeatures",
+        "example": {
+          "age": 41,
+          "annee_experience_totale": 8,
+          "annees_dans_l_entreprise": 6,
+          "annees_dans_le_poste_actuel": 4,
+          "annees_depuis_la_derniere_promotion": 0,
+          "annes_sous_responsable_actuel": 5,
+          "augementation_salaire_precedente": 11,
+          "departement": "Commercial",
+          "distance_domicile_travail": 1,
+          "domaine_etude": "Infra & Cloud",
+          "frequence_deplacement": "Occasionnel",
+          "genre": "F",
+          "heure_supplementaires": 1,
+          "nb_formations_suivies": 0,
+          "niveau_education": 2,
+          "niveau_hierarchique_poste": 2,
+          "nombre_experiences_precedentes": 8,
+          "nombre_participation_pee": 0,
+          "note_evaluation_actuelle": 3,
+          "note_evaluation_precedente": 3,
+          "poste": "Cadre Commercial",
+          "revenu_mensuel": 5993,
+          "satisfaction_employee_environnement": 2,
+          "satisfaction_employee_equilibre_pro_perso": 1,
+          "satisfaction_employee_equipe": 1,
+          "satisfaction_employee_nature_travail": 4,
+          "statut_marital": "Celibataire"
+        }
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Etat global du service : ok ou degraded."
+          },
+          "model_loaded": {
+            "type": "boolean",
+            "title": "Model Loaded",
+            "description": "Indique si l'artefact modele a ete charge."
+          },
+          "model_path": {
+            "type": "string",
+            "title": "Model Path",
+            "description": "Chemin du modele attendu par l'application."
+          },
+          "database_connected": {
+            "type": "boolean",
+            "title": "Database Connected",
+            "description": "Indique si PostgreSQL repond."
+          },
+          "database_logging_enabled": {
+            "type": "boolean",
+            "title": "Database Logging Enabled",
+            "description": "Indique si une configuration PostgreSQL est active."
+          },
+          "authentication_enabled": {
+            "type": "boolean",
+            "title": "Authentication Enabled",
+            "description": "Indique si `POST /predict` exige une cle `X-API-Key`."
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail",
+            "description": "Detail technique utile en cas d'etat degrade."
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "model_loaded",
+          "model_path",
+          "database_connected",
+          "database_logging_enabled",
+          "authentication_enabled"
+        ],
+        "title": "HealthResponse",
+        "example": {
+          "authentication_enabled": true,
+          "database_connected": false,
+          "database_logging_enabled": false,
+          "model_loaded": true,
+          "model_path": "models/attrition_xgboost_pipeline.joblib",
+          "status": "ok"
+        }
+      },
+      "PredictionResponse": {
+        "properties": {
+          "probabilite_attrition": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probabilite Attrition",
+            "description": "Probabilite predite d'attrition."
+          },
+          "prediction_attrition": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Prediction Attrition",
+            "description": "Decision binaire finale du modele."
+          },
+          "threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Threshold",
+            "description": "Seuil de decision stocke avec l'artefact modele."
+          }
+        },
+        "type": "object",
+        "required": [
+          "probabilite_attrition",
+          "prediction_attrition",
+          "threshold"
+        ],
+        "title": "PredictionResponse",
+        "example": {
+          "prediction_attrition": 1,
+          "probabilite_attrition": 0.7342,
+          "threshold": 0.4781
+        }
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "monitoring",
+      "description": "Supervision technique du service, du modele et de PostgreSQL."
+    },
+    {
+      "name": "prediction",
+      "description": "Inference du modele d'attrition et persistance du logging."
+    }
+  ]
+}

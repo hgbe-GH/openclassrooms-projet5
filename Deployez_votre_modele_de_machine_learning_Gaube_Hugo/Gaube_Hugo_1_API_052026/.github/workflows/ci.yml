@@ -1,0 +1,134 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  quality:
+    name: Tests and lint
+    runs-on: ubuntu-latest
+    environment: test
+    timeout-minutes: 10
+    env:
+      POSTGRES_DB: attrition_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/attrition_api
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: attrition_api
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d attrition_api"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Restore local model artifact
+        run: |
+          mkdir -p models
+          if [ -n "${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 \
+              -in models/attrition_xgboost_pipeline.joblib.enc \
+              -out models/attrition_xgboost_pipeline.joblib \
+              -pass pass:"${{ secrets.MODEL_ARTIFACT_PASSPHRASE }}"
+          else
+            echo "MODEL_ARTIFACT_PASSPHRASE secret is required for full prediction tests."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Create database and run migrations
+        run: uv run python scripts/create_db.py --skip-create-db
+
+      - name: Run tests
+        run: uv run pytest --cov=openclassrooms_projet5 --cov-report=term-missing --cov-report=xml
+
+      - name: Run lint
+        run: uv run ruff check .
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  deploy-huggingface:
+    name: Deploy to Hugging Face Spaces
+    runs-on: ubuntu-latest
+    environment: production
+    needs: quality
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Hugging Face CLI
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Upload repository to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE" ]; then
+            echo "HF_TOKEN secret and HF_SPACE variable are required for deployment."
+            exit 1
+          fi
+          DEPLOY_DIR="$(mktemp -d)"
+          rsync -a \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude="models/*.joblib" \
+            ./ "${DEPLOY_DIR}/"
+          hf upload "${HF_SPACE}" "${DEPLOY_DIR}" . \
+            --repo-type space \
+            --token "${HF_TOKEN}" \
+            --delete "models/*.joblib" \
+            --commit-message "deploy: sync ${GITHUB_SHA}"
