@@ -45,9 +45,11 @@ Le README ne suppose plus que ces secrets soient deja configures. Ils sont requi
 la CI/CD et le runtime cible fonctionnent, mais doivent etre verifies explicitement au
 moment du deploiement.
 
-Le modele versionne pour la CI/CD et le deploiement est l'artefact chiffre
-`models/attrition_xgboost_pipeline.joblib.enc`. La passphrase de dechiffrement reste hors
-du depot.
+La CI/CD restaure l'artefact chiffre
+`models/attrition_xgboost_pipeline.joblib.enc` avec une passphrase qui reste hors du depot.
+Pour la reproductibilite locale de ce POC pedagogique, une copie non chiffree du modele est
+egalement versionnee. Cette exception ne protege donc pas la confidentialite du modele : une
+production utiliserait un registre d'artefacts prive avec controle d'acces et tracabilite.
 
 ## Limites assumees
 
