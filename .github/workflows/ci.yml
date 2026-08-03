@@ -125,8 +125,10 @@ jobs:
           rsync -a \
             --exclude=".git" \
             --exclude=".github" \
+            --exclude="deploy/huggingface/" \
             --exclude="models/*.joblib" \
             ./ "${DEPLOY_DIR}/"
+          cp deploy/huggingface/README.md "${DEPLOY_DIR}/README.md"
           hf upload "${HF_SPACE}" "${DEPLOY_DIR}" . \
             --repo-type space \
             --token "${HF_TOKEN}" \

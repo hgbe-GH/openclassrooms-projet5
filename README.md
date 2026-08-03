@@ -1,12 +1,3 @@
----
-title: OpenClassrooms Projet 5 - Attrition API
-colorFrom: red
-colorTo: blue
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # openclassrooms-projet5
 
 API FastAPI de prediction d'attrition pour Futurisys.
