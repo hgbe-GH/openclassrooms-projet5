@@ -57,7 +57,9 @@ Secrets et variables attendus pour GitHub Actions :
 
 ## Standards ML
 
-- Les modèles sérialisés et données réelles ne sont pas versionnés dans Git.
+- Exception documentée pour ce POC pédagogique : l'artefact non chiffré nécessaire à la
+  reproductibilité locale est versionné avec sa copie chiffrée. Une production utiliserait
+  un registre d'artefacts privé et contrôlé ; les données réelles ne sont jamais versionnées.
 - Les artefacts locaux sont placés dans `models/`.
 - Les entrées API sont validées avec Pydantic avant prédiction.
 - Les predictions passent par une persistance PostgreSQL des qu'une configuration base est

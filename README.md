@@ -150,9 +150,12 @@ Exemple d'appel :
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cle-test" \
+  -H "X-API-Key: change-me-local" \
   -d @references/predict_payload_example.json
 ```
+
+`change-me-local` est uniquement un placeholder de documentation. Utilisez une valeur
+distincte et non versionnée dans `.env` ou dans le gestionnaire de secrets du runtime.
 
 ## Base de donnees PostgreSQL
 
